@@ -15,7 +15,8 @@ An example about how to make a web by using this framework is in another reposit
       }
 
      /**
-      * The format of response can be xml or json.(xml when responseType is empty or "xml", json when responseType is "json")
+      * The format of response can be xml or json.(xml when responseType is empty or "xml", 
+      * json when responseType is "json")
       */
       @ReturnValueConverter(valueFromRequestParam = "responseType", 
 			jsonpReturnVariableNameFromRequestParam="jsonpReturn",
@@ -51,7 +52,7 @@ An example about how to make a web by using this framework is in another reposit
 
 ------------------------------------------------------------------------------
 * 1st version of this framework was made in March 2012, and it is stable currently.<br>
-It has been used in more than 10 projects, so you can safely use it in your projects.<br>
+  It has been used in more than 10 projects, so you can safely use it in your projects.<br>
 
 * In fact it includes 2 style of web service. <br>
   --- One is called "SalamaInvokeService", its input and output are xml(defined format). It's the traditinal way(keep login status in session and cookie, and use filter to intercept unauthorized url)<br>
