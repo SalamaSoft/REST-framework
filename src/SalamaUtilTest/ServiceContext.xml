@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceContext>
+  <Contexts>
+    <ContextSetting>
+      <ConfigLocation>/WEB-INF/salama/InvokeServiceContext.xml</ConfigLocation>
+      <ContextClass>com.salama.service.invoke.ServiceContext</ContextClass>
+    </ContextSetting>
+    <ContextSetting>
+      <ConfigLocation>/WEB-INF/salama/AuthenticationContext.xml</ConfigLocation>
+      <ContextClass>com.salama.service.auth.AuthenticationContext</ContextClass>
+    </ContextSetting>
+  </Contexts>
+</ServiceContext>

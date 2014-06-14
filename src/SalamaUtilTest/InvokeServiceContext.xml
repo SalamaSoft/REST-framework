@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceContext>
+  <AccessController>
+    <ClassName>com.salama.service.core.auth.AnnotationMethodAccessController</ClassName>
+  </AccessController>
+  <DataScan>
+    <BasePackage>
+      <BasePackage>com.salama.appserver.test.data</BasePackage>
+      <Description></Description>
+    </BasePackage>
+  </DataScan>
+  <ServiceScan>
+    <BasePackage>
+      <BasePackage>com.salama.appserver.service</BasePackage>
+      <Description></Description>
+    </BasePackage>
+  </ServiceScan>
+  <UploadSetting>
+    <FileSizeMax>5242880</FileSizeMax>
+    <SizeMax>20971520</SizeMax>
+    <SizeThreshold>524288</SizeThreshold>
+    <TempDirPath></TempDirPath>
+  </UploadSetting>
+</ServiceContext>

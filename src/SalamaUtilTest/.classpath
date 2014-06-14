@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="resource"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/MetoXML.jar"/>
+	<classpathentry kind="lib" path="lib/SalamaReflect.jar" sourcepath="/SalamaReflect/src"/>
+	<classpathentry kind="lib" path="lib/SalamaUtil.jar"/>
+	<classpathentry kind="lib" path="lib/CollectionCommon.jar"/>
+	<classpathentry kind="lib" path="lib/jigsaw.jar"/>
+	<classpathentry kind="lib" path="lib/oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons-fileupload-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="lib/ognl-2.6.11.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.0.1-FINAL-20070705.jar"/>
+	<classpathentry kind="lib" path="lib/SalamaHttpUtil.jar"/>
+	<classpathentry kind="lib" path="lib/SalamaInvokeService.jar"/>
+	<classpathentry kind="lib" path="lib/SalamaSerciceAuth.jar"/>
+	<classpathentry kind="lib" path="lib/SalamaServiceCore.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
