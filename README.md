@@ -7,6 +7,7 @@ An example about how to make a web by using this framework is in another reposit
 ------------------------------------------------------------------------------
 * It is designed to be simple (looks simple and use simply)<br>
   For example, a service is just a common class:<br>
+  <code>
   public class TestService {
   
       public static String test1(String paramA, String paramB) {
@@ -45,6 +46,7 @@ An example about how to make a web by using this framework is in another reposit
 			$('#result').text('Error');
 		}
 	});
+	</code>
 
 ------------------------------------------------------------------------------
 * 
