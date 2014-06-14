@@ -1,12 +1,12 @@
 REST-framework
 ==============
 
-A framework in Java for developing RESTful Web Services (Very easy to use)
-An example about how to make a web by using this framework is in another repository(<a href="https://github.com/SalamaSoft/REST-HelloWorld">REST-HelloWorld</a>)
+A framework in Java for developing RESTful Web Services (Very easy to use)<br>
+An example about how to make a web by using this framework is in another repository(<a href="https://github.com/SalamaSoft/REST-HelloWorld">REST-HelloWorld</a>)<br>
 
 ------------------------------------------------------------------------------
-* It is designed to be simple (looks simple and use simply)
-  For example, a service is just a common class:
+* It is designed to be simple (looks simple and use simply)<br>
+  For example, a service is just a common class:<br>
   public class TestService {
   
       public static String test1(String paramA, String paramB) {
@@ -26,7 +26,7 @@ An example about how to make a web by using this framework is in another reposit
   }
   
   
-  In ajax, code is just like invoking a method:
+  In ajax, code is just like invoking a method:<br>
 	$.ajax({
 		url: "/testWS/cloudDataService.do",
 		type: "post",
@@ -49,12 +49,12 @@ An example about how to make a web by using this framework is in another reposit
 ------------------------------------------------------------------------------
 * 
 
-* 1st version of this framework was made in March 2012, and it is stable currently.
-It has been used in more than 10 projects, so you can safely use it in your projects.
+* 1st version of this framework was made in March 2012, and it is stable currently.<br>
+It has been used in more than 10 projects, so you can safely use it in your projects.<br>
 
-* In fact it includes 2 style of web service. 
-  --- One is called "SalamaInvokeService", its input and output are xml(defined format). It's the traditinal way(keep login status in session and cookie, and use filter to intercept unauthorized url)
-      It's been left behind, and I almost don't use it currently.
-  --- One is called "SalamaCloudDataService", it is standard RESTful web service. It's simpler and better support the ajax style front-end.
+* In fact it includes 2 style of web service. <br>
+  --- One is called "SalamaInvokeService", its input and output are xml(defined format). It's the traditinal way(keep login status in session and cookie, and use filter to intercept unauthorized url)<br>
+      It's been left behind, and I almost don't use it currently.<br>
+  --- One is called "SalamaCloudDataService", it is standard RESTful web service. It's simpler and better support the ajax style front-end.<br>
 
-* JSON source is copied to here for compiling, and maybe has been modified for some bugs(whatever, I can not remember whether it has been modified or not)
+* JSON source is copied to here for compiling, and maybe has been modified for some bugs(whatever, I can not remember whether it has been modified or not)<br>
