@@ -27,7 +27,7 @@ An example about how to make a web by using this framework is in another reposit
   }
   </code></pre>
   
-  In ajax, code is just like invoking a method:<br>
+  The code in javascript is just like invoking a method:<br>
   <pre><code>
 	$.ajax({
 		url: "/testWS/cloudDataService.do",
@@ -50,8 +50,6 @@ An example about how to make a web by using this framework is in another reposit
     </code></pre>
 
 ------------------------------------------------------------------------------
-* 
-
 * 1st version of this framework was made in March 2012, and it is stable currently.<br>
 It has been used in more than 10 projects, so you can safely use it in your projects.<br>
 
