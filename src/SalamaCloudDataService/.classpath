@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/JSON.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/SalamaCloudDataServiceUtil.jar" sourcepath="/SalamaCloudDataServiceUtil/src"/>
-	<classpathentry kind="lib" path="lib/MFSUtil.jar"/>
 	<classpathentry kind="lib" path="lib/SalamaCloudDataServiceCore.jar"/>
 	<classpathentry kind="lib" path="lib/SalamaReflect.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>

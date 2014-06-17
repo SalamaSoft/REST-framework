@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 
 import MetoXML.Base.XmlContentEncoder;
 
-import com.chikuhou.mfs.common.util.HexUtil;
 import com.salama.service.clouddata.core.AppAuthUserDataManager;
 import com.salama.service.clouddata.core.AppException;
 import com.salama.service.clouddata.core.AuthUserInfo;
@@ -97,7 +96,7 @@ public final class DefaultAuthUserDataManager implements AppAuthUserDataManager 
 		byte[] md5bytes2 = _md5.digest(bytes);
 
 		_md5.reset();
-		return HexUtil.toHexString(md5bytes2, 0, md5bytes2.length);
+		return toHexString(md5bytes2, 0, md5bytes2.length);
 	}
 
 	@Override
@@ -484,4 +483,43 @@ public final class DefaultAuthUserDataManager implements AppAuthUserDataManager 
 		_backupDirPath = backupDirPath;
 	}
 
+	private static String toHexString(byte[] val, int offset, int length) {
+		long lVal = 0;
+		int cnt = length / 8;
+		int startIndex = offset;
+		StringBuilder hexStr = new StringBuilder();
+		
+		for(int i = 0; i < cnt; i++) {
+			
+			lVal = 
+				((((long)val[startIndex]) << 56) & 0xFF00000000000000L) + 
+				((((long)val[startIndex + 1]) << 48) & 0x00FF000000000000L) +
+				((((long)val[startIndex + 2]) << 40) & 0x0000FF0000000000L) +
+				((((long)val[startIndex + 3]) << 32) & 0x000000FF00000000L) +
+				((((long)val[startIndex + 4]) << 24) & 0x00000000FF000000L) +
+				((((long)val[startIndex + 5]) << 16) & 0x0000000000FF0000L) +
+				((((long)val[startIndex + 6]) << 8) &  0x000000000000FF00L) +
+				((((long)val[startIndex + 7]) ) & 0x00000000000000FFL) ;
+			hexStr.append(toHexString(lVal));
+			
+			startIndex += 8;
+		}
+		
+		for(; startIndex < length; startIndex++) {
+			hexStr.append(toHexString(val[startIndex]));
+		}
+		
+		return hexStr.toString();
+	}
+
+	private static String toHexString(long val) {
+		StringBuilder hexStr = new StringBuilder(Long.toHexString(val));
+
+		for(int i = hexStr.length(); i < 16; i++) {
+			hexStr.insert(0, '0');
+		}
+		
+		return hexStr.toString();
+	}
+	
 }
