@@ -13,8 +13,10 @@ import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.salama.service.core.net.RequestWrapper;
 import com.salama.service.core.net.ResponseWrapper;
 
 /**
@@ -221,4 +223,37 @@ public class HttpResponseWrapper implements ResponseWrapper {
 				"attachment;filename=" + encodedFileName);
 	}
 
+	@Override
+	public void setDownloadFileName(RequestWrapper request,
+			ResponseWrapper response, String downloadFileName) {
+		String userAgent = ((HttpServletRequest)request.getRequest()).getHeader("user-agent");
+		String encodedFileName = null;
+		try {
+			encodedFileName = URLEncoder.encode(downloadFileName, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			encodedFileName = downloadFileName;
+		}
+
+		String fileNamePart = "filename=" + encodedFileName;
+		if(userAgent != null) {
+			userAgent = userAgent.toLowerCase();
+			if(userAgent.indexOf("msie") >= 0) {
+				fileNamePart = "filename=" + encodedFileName;
+			} else if(userAgent.indexOf("opera") >= 0) {
+				fileNamePart = "filename*=UTF-8''" + encodedFileName;  
+			} else if(userAgent.indexOf("safari") >= 0) {
+				try {
+					fileNamePart = "filename=\"" + new String(downloadFileName.getBytes("UTF-8"),"iso-8859-1") + "\"";
+				} catch (UnsupportedEncodingException e) {
+				}  
+			} else if(userAgent.indexOf("applewebkit") >= 0) {
+				fileNamePart = "filename=" + encodedFileName;
+			} else if(userAgent.indexOf("mozilla") >= 0) {
+				fileNamePart = "filename*=UTF-8''" + encodedFileName;  
+			}
+		}
+
+		response.addHeader(HttpResponseWrapper.HEADER_NAME_CONTENT_DISPOSITION, "attachment;" + fileNamePart);
+	}
+	
 }

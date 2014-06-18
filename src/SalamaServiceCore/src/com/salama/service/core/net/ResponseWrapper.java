@@ -72,6 +72,13 @@ public interface ResponseWrapper {
 	
 	public void sendError(int sc, java.lang.String msg) throws IOException;
 	
+	/**
+	 * @deprecated
+	 * @param fileName
+	 * @param fileNameEncoding
+	 */
 	public void setDownloadFileName(String fileName, String fileNameEncoding);
+	
+	public void setDownloadFileName(RequestWrapper request, ResponseWrapper response, String fileName);
 	
 }
