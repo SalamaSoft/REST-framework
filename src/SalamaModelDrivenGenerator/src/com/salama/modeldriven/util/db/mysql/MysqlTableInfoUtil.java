@@ -34,7 +34,7 @@ public class MysqlTableInfoUtil {
         	rs = stmt.executeQuery(SQL_SHOW_TABLES);
         	
         	while(rs.next()) {
-        		tableNameList.add(rs.getString(0));
+        		tableNameList.add(rs.getString(1));
         	}
 
         	return tableNameList;
