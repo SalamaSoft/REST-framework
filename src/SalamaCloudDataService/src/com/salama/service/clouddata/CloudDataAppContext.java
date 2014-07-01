@@ -10,13 +10,13 @@ import javax.naming.NamingException;
 
 import MetoXML.XmlDeserializer;
 import MetoXML.XmlSerializer;
+import MetoXML.Util.ClassFinder;
 
 import com.salama.reflect.PreScanClassFinder;
 import com.salama.service.clouddata.config.CloudDataAppConfig;
 import com.salama.service.clouddata.core.AppAuthUserDataManager;
 import com.salama.service.clouddata.core.AppContext;
 import com.salama.service.clouddata.core.AppException;
-import com.salama.service.clouddata.core.AppServiceContext;
 import com.salama.service.clouddata.core.AppServiceFilter;
 import com.salama.service.clouddata.core.AuthUserInfo;
 import com.salama.util.db.DBUtil;
@@ -26,7 +26,7 @@ import com.salama.util.db.DBUtil;
  * @author XingGu Liu
  *
  */
-public class CloudDataAppContext implements AppContext {
+public class CloudDataAppContext implements AppContext, ClassFinder {
 
 	//private final static Logger logger = Logger.getLogger(CloudDataAppContext.class);
 	
