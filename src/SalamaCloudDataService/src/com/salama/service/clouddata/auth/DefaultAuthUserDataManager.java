@@ -521,5 +521,14 @@ public final class DefaultAuthUserDataManager implements AppAuthUserDataManager 
 		
 		return hexStr.toString();
 	}
+
+	private static String toHexString(byte val) {
+		StringBuilder hexStr = new StringBuilder(Integer.toHexString(val));
+		if(hexStr.length() < 2) {
+			hexStr.insert(0, '0');
+		}
+		
+		return hexStr.substring(hexStr.length() - 2);
+	}
 	
 }
