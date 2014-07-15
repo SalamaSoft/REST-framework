@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -122,13 +123,18 @@ public final class CloudDataService implements ICloudDataService {
 		try {
 			method = MethodInvokeUtil.GetMethod(serviceTypeClass,
 					serviceMethod, StandardCloudDataServiceParamTypes);
+			if((method.getModifiers() & Modifier.PUBLIC) != 0) {
+				throw new NoSuchMethodException();
+			}
 			
 			return method;
 		} catch (NoSuchMethodException e) {
 			//find by name
 			Method[] methods = serviceTypeClass.getMethods();
 			for(Method methodTmp : methods) {
-				if(methodTmp.getName().equals(serviceMethod)) {
+				if(methodTmp.getName().equals(serviceMethod)
+						&& (methodTmp.getModifiers() & Modifier.PUBLIC) != 0
+						) {
 					method = methodTmp;
 					break;
 				}

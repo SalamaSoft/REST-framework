@@ -58,7 +58,7 @@ public final class JDBCUtil extends AbstractReflectInfoCachedSerializer {
 
 				if(prop.getWriteMethod() != null) {
 					if(isTrimStr && rs.getObject(i) != null && rs.getObject(i).getClass() == String.class) {
-						prop.getWriteMethod().invoke(data, ((String)rs.getObject(i)).trim());
+						prop.getWriteMethod().invoke(data, rs.getString(i).trim());
 					} else if(prop.getPropertyType() == long.class) {
 						prop.getWriteMethod().invoke(data, rs.getLong(i));
 					} else if(prop.getPropertyType() == int.class) {
@@ -80,7 +80,15 @@ public final class JDBCUtil extends AbstractReflectInfoCachedSerializer {
 					} else if(prop.getPropertyType() == Float.class) {
 						prop.getWriteMethod().invoke(data, rs.getFloat(i));
 					} else {
-						prop.getWriteMethod().invoke(data, rs.getObject(i));
+						if(String.class == prop.getPropertyType()) {
+							if(rs.getObject(i) != null) {
+								prop.getWriteMethod().invoke(data, rs.getString(i).trim());
+							} else {
+								prop.getWriteMethod().invoke(data, (String)null);
+							}
+						} else {
+							prop.getWriteMethod().invoke(data, rs.getObject(i));
+						}
 					}
 				}
 			} catch (IllegalArgumentException e1) {

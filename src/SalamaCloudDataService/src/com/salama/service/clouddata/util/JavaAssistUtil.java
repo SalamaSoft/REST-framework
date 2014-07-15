@@ -23,7 +23,9 @@ public class JavaAssistUtil {
 		CtMethod ctMethod = null;
 		
 		for(CtMethod methodTmp : ctMethods) {
-			if(methodTmp.getName().equals(methodName)) {
+			if(methodTmp.getName().equals(methodName)
+					&& (methodTmp.getModifiers() & Modifier.PUBLIC) != 0
+					) {
 				ctMethod = methodTmp;
 				break;
 			}
@@ -53,7 +55,9 @@ public class JavaAssistUtil {
 		CtMethod ctMethod = null;
 
 		for(CtMethod methodTmp : ctMethods) {
-			if(methodTmp.getName().equals(methodName)) {
+			if(methodTmp.getName().equals(methodName)
+					&& (methodTmp.getModifiers() & Modifier.PUBLIC) != 0
+				) {
 				ctMethod = methodTmp;
 				break;
 			}
