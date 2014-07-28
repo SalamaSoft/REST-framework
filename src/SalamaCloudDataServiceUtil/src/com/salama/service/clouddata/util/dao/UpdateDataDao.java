@@ -12,6 +12,8 @@ import javax.swing.SpringLayout.Constraints;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.salama.service.clouddata.util.SqlParamValidator;
+
 import CollectionCommon.ITreeNode;
 import MetoXML.AbstractReflectInfoCachedSerializer;
 import MetoXML.Base.XmlNode;
@@ -24,8 +26,8 @@ import MetoXML.Base.XmlNode;
  *
  */
 public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
-	private static Logger logger = Logger.getLogger(UpdateDataDao.class); 
-
+	private static Logger logger = Logger.getLogger(UpdateDataDao.class);
+	
 	public static int updateData(Connection conn, Object data, String[] primaryKeys) throws SQLException {
 		if(data == null) {
 			return 0;
@@ -43,6 +45,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		if(data == null) {
 			return 0;
 		} else {
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+			
 			PreparedStatement pstmt = null;
 
 			try {
@@ -59,7 +63,7 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				
 				StringBuilder sql = new StringBuilder();
 				
-				sql.append("update ").append(tableName).append(" set ");
+				sql.append("update ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" set ");
 
 				//PropertyDescriptor[] properties = Introspector.getBeanInfo(dataClass).getPropertyDescriptors();
 				PropertyDescriptor[] listPropDesc = findPropertyDescriptorArray(dataClass);
@@ -79,9 +83,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 					
 					if(!isExistInArrayIgnoreCase(property.getName(), primaryKeys)) {
 						if(index == 0) {
-							sql.append(property.getName()).append("=?");
+							sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, property.getName())).append("=?");
 						} else {
-							sql.append(",").append(property.getName()).append("=?");
+							sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, property.getName())).append("=?");
 						}
 						
 						propertyList.add(property);
@@ -93,9 +97,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				
 				for(index = 0; index < primaryKeys.length; index++) {
 					if(index == 0) {
-						sql.append(primaryKeys[index]).append(" = ? ");
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
 					} else {
-						sql.append(" and ").append(primaryKeys[index]).append(" =? ");
+						sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" =? ");
 					}
 					
 					//property = new PropertyDescriptor(primaryKeys[index], dataClass);
@@ -162,8 +166,10 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			}
 			*/
 
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+			
 			StringBuilder sql = new StringBuilder();
-			sql.append("update ").append(tableName).append(" set ");
+			sql.append("update ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" set ");
 
 			XmlNode nodeTmp;
 			int index;
@@ -174,9 +180,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			while(nodeTmp != null) {
 				if(!isExistInArrayIgnoreCase(nodeTmp.getName(), primaryKeys)) {
 					if(index == 0) {
-						sql.append(nodeTmp.getName()).append("=?");
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
 					} else {
-						sql.append(",").append(nodeTmp.getName()).append("=?");
+						sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
 					}
 					
 					nodeList.add(nodeTmp);
@@ -193,9 +199,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			while(nodeTmp != null) {
 				if(isExistInArrayIgnoreCase(nodeTmp.getName(), primaryKeys)) {
 					if(index == 0) {
-						sql.append(nodeTmp.getName()).append("=?");
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
 					} else {
-						sql.append(" and ").append(nodeTmp.getName()).append("=?");
+						sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
 					}
 					
 					nodeList.add(nodeTmp);
@@ -239,10 +245,10 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		PreparedStatement pstmt = null;
 
 		try {
-			//valid primaryKeys
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
 			
 			StringBuilder sql = new StringBuilder();
-			sql.append("update ").append(tableName).append(" set ");
+			sql.append("update ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" set ");
 
 			int index, i;
 			List<String> jsonKeyList = new ArrayList<String>();
@@ -255,9 +261,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				colName = colNames[i];
 				if(!isExistInArrayIgnoreCase(colName, primaryKeys)) {
 					if(index == 0) {
-						sql.append(colName).append("=?");
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append("=?");
 					} else {
-						sql.append(",").append(colName).append("=?");
+						sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append("=?");
 					}
 					
 					jsonKeyList.add(colName);
@@ -270,9 +276,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 
 			for(index = 0; index < primaryKeys.length; index++) {
 				if(index == 0) {
-					sql.append(primaryKeys[index]).append(" = ? ");
+					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
 				} else {
-					sql.append(" and ").append(primaryKeys[index]).append(" =? ");
+					sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" =? ");
 				}
 				
 				jsonKeyList.add(primaryKeys[index]);
@@ -317,6 +323,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		if(data == null) {
 			return 0;
 		} else {
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+			
 			PreparedStatement pstmt = null;
 
 			try {
@@ -330,7 +338,7 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				int index;
 				int i;
 				StringBuilder sql = new StringBuilder();
-				sql.append("insert into ").append(tableName).append(" (");
+				sql.append("insert into ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" (");
 
 				index = 0;
 				for(i = 0; i < listPropDesc.length; i++) {
@@ -341,9 +349,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 					}
 					
 					if(index == 0) {
-						sql.append(property.getName());
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, property.getName()));
 					} else {
-						sql.append(",").append(property.getName());
+						sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, property.getName()));
 					}
 					
 					index++;
@@ -407,6 +415,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 
 	public static int insertDataXml(Connection conn, String tableName, XmlNode dataNode) 
 			throws SQLException {
+		String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+
 		PreparedStatement pstmt = null;
 
 		try {
@@ -420,7 +430,7 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			*/
 
 			StringBuilder sql = new StringBuilder();
-			sql.append("insert into ").append(tableName).append(" ( ");
+			sql.append("insert into ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" ( ");
 
 			XmlNode nodeTmp;
 			int index;
@@ -429,9 +439,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			index = 0;
 			while(nodeTmp != null) {
 				if(index == 0) {
-					sql.append(nodeTmp.getName());
+					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName()));
 				} else {
-					sql.append(",").append(nodeTmp.getName());
+					sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName()));
 				}
 
 				index++;
@@ -491,10 +501,10 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		PreparedStatement pstmt = null;
 
 		try {
-			//valid primaryKeys
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
 			
 			StringBuilder sql = new StringBuilder();
-			sql.append("insert into ").append(tableName).append(" ( ");
+			sql.append("insert into ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" ( ");
 
 			int index, i;
 			JSONObject jsonDataObject = new JSONObject(dataJSON);
@@ -506,9 +516,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				colName = colNames[i];
 
 				if(index == 0) {
-					sql.append(colName);
+					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName));
 				} else {
-					sql.append(",").append(colName);
+					sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName));
 				}
 				
 				index++;
@@ -570,6 +580,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		if(data == null) {
 			return 0;
 		} else {
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+
 			PreparedStatement pstmt = null;
 
 			StringBuilder sql = new StringBuilder();
@@ -585,7 +597,7 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				
 				Class<?> dataClass = data.getClass();
 				
-				sql.append("delete from ").append(tableName).append(" where ");
+				sql.append("delete from ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" where ");
 
 				PropertyDescriptor property = null;
 				ArrayList<PropertyDescriptor> propertyList = new ArrayList<PropertyDescriptor>();
@@ -593,9 +605,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 				int index;
 				for(index = 0; index < primaryKeys.length; index++) {
 					if(index == 0) {
-						sql.append(primaryKeys[index]).append(" = ? ");
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
 					} else {
-						sql.append(" and ").append(primaryKeys[index]).append(" =? ");
+						sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" =? ");
 					}
 					
 					//property = new PropertyDescriptor(primaryKeys[index], dataClass);
@@ -638,11 +650,13 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 	
 	public static int deleteDataXml(Connection conn, String tableName, XmlNode dataNode, String[] primaryKeys, String extraConstraintsSql) 
 			throws SQLException {
+		String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+
 		PreparedStatement pstmt = null;
 
 		try {
 			StringBuilder sql = new StringBuilder();
-			sql.append("delete from ").append(tableName).append(" where ");
+			sql.append("delete from ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" where ");
 
 			XmlNode nodeTmp;
 			int index;
@@ -653,9 +667,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			while(nodeTmp != null) {
 				if(isExistInArrayIgnoreCase(nodeTmp.getName(), primaryKeys)) {
 					if(index == 0) {
-						sql.append(nodeTmp.getName()).append("=?");
+						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
 					} else {
-						sql.append(" and ").append(nodeTmp.getName()).append("=?");
+						sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
 					}
 					
 					nodeList.add(nodeTmp);
@@ -699,10 +713,10 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		PreparedStatement pstmt = null;
 
 		try {
-			//valid primaryKeys
+			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
 			
 			StringBuilder sql = new StringBuilder();
-			sql.append("delete from ").append(tableName).append(" where ");
+			sql.append("delete from ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" where ");
 
 			int index;
 			JSONObject jsonDataObject = new JSONObject(dataJSON);
@@ -710,9 +724,9 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 
 			for(index = 0; index < primaryKeys.length; index++) {
 				if(index == 0) {
-					sql.append(primaryKeys[index]).append(" = ? ");
+					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
 				} else {
-					sql.append(" and ").append(primaryKeys[index]).append(" = ? ");
+					sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
 				}
 			}
 
