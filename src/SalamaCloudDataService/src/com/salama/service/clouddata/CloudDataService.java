@@ -37,6 +37,7 @@ import com.salama.service.clouddata.util.JavaAssistUtil;
 import com.salama.service.clouddata.util.SimpleJSONDataUtil;
 import com.salama.service.clouddata.util.XmlDataUtil;
 import com.salama.service.core.annotation.AccessibleRoles;
+import com.salama.service.core.auth.MethodAccessNoAuthorityException;
 import com.salama.service.core.net.RequestWrapper;
 import com.salama.service.core.net.ResponseWrapper;
 import com.salama.service.core.net.http.ContentTypeHelper;
@@ -86,11 +87,15 @@ public final class CloudDataService implements ICloudDataService {
 			Method method = findMethod(serviceTypeClass, serviceMethod);
 
 			//check the authority of accessible
-			boolean isAccessible = checkServiceAccessAuthority(method, request, appContext);
-			
-			if(!isAccessible) {
-				logger.error("No authority to access method:" + serviceType + "." + serviceMethod + "()");
-				return "";
+			try {
+				boolean isAccessible = checkServiceAccessAuthority(method, request, appContext);
+				
+				if(!isAccessible) {
+					logger.error("No authority to access method:" + serviceType + "." + serviceMethod + "()");
+					return "";
+				}
+			} catch(MethodAccessNoAuthorityException noAuthError) {
+				return "<Error>".concat("<type>").concat("MethodAccessNoAuthorityException").concat("</type>").concat("</Error>");
 			}
 
 			String returnVal = invokeMethod(serviceType, serviceMethod, serviceTypeClass, method, request, response, appContext);
@@ -454,7 +459,7 @@ public final class CloudDataService implements ICloudDataService {
 	
 	private static boolean checkServiceAccessAuthority(
 			Method method, RequestWrapper request, AppContext appContext
-			) 
+			) throws MethodAccessNoAuthorityException 
 	{
 		String authTicket = request.getParameter(AUTH_TICKET);
 		AccessibleRoles accessibleRoles = null;
@@ -467,14 +472,14 @@ public final class CloudDataService implements ICloudDataService {
 		if(accessibleRoles == null || accessibleRoles.roles() == null || accessibleRoles.roles().length == 0 ) {
 			return true;
 		} else {
+			boolean isAccessible = false;
+
 			String role = null;
 			try {
 				role = appContext.getAuthUserInfo(authTicket).getRole();
-			} catch(AppException e) {
-				return false;
+			} catch(Throwable e) {
+				//return false;
 			}
-			
-			boolean isAccessible = false;
 
 			for(String roleTmp : accessibleRoles.roles()) {
 				if(roleTmp.equals(role)) {
@@ -483,7 +488,11 @@ public final class CloudDataService implements ICloudDataService {
 				}
 			}
 			
-			return isAccessible;
+			if(!isAccessible && accessibleRoles.returnError()) {
+				throw new MethodAccessNoAuthorityException();
+			}  else {
+				return isAccessible;
+			}
 		}
 	}
 
