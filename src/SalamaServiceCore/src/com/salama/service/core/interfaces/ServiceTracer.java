@@ -25,6 +25,22 @@ public interface ServiceTracer {
 			String serviceMethod, 
 			String paramType,
 			String paramValueXml);
+
+	/**
+	 * 
+	 * @param request
+	 * @param serviceType
+	 * @param serviceMethod
+	 * @param paramType
+	 * @param paramValueXml
+	 * @param elapsedTime how long elapsed in service  
+	 */
+	public void onInvokeServiceDone(RequestWrapper request, 
+			String serviceType,
+			String serviceMethod, 
+			String paramType,
+			String paramValueXml,
+			long elapsedTime);
 	
 	/**
 	 * 
@@ -41,6 +57,14 @@ public interface ServiceTracer {
 			String property,
 			String propertyType, 
 			String valueXml);
+
+	public void onSetSessionValueDone(RequestWrapper request, 
+			String key,
+			String dataType, 
+			String property,
+			String propertyType, 
+			String valueXml,
+			long elapsedTime);
 	
 	/**
 	 * 
@@ -50,6 +74,10 @@ public interface ServiceTracer {
 	public void onSetSessionValues(RequestWrapper request,
 			String sessionValueSetXml);
 
+	public void onSetSessionValuesDone(RequestWrapper request,
+			String sessionValueSetXml,
+			long elapsedTime);
+	
 	/**
 	 * 
 	 * @param request
@@ -63,6 +91,11 @@ public interface ServiceTracer {
 			String dataType, String property,
 			String propertyType);
 	
+	public void onGetSessionValueDone(RequestWrapper request,
+			String key,
+			String dataType, String property,
+			String propertyType,
+			long elapsedTime);
 	/**
 	 * 
 	 * @param request
@@ -75,6 +108,11 @@ public interface ServiceTracer {
 			String paramType,
 			String paramValueXml);
 	
+	public void onUploadServiceDone(RequestWrapper request,
+			String serviceType,
+			String paramType,
+			String paramValueXml,
+			long elapsedTime);
 	/**
 	 * 
 	 * @param request
@@ -83,11 +121,21 @@ public interface ServiceTracer {
 	public void onDownloadService(RequestWrapper request,
 			String serviceType);
 	
+	public void onDownloadServiceDone(RequestWrapper request,
+			String serviceType,
+			long elapsedTime);
 	
 	public void onCloudDataService(
 			RequestWrapper request,
 			String serviceType,
 			String serviceMethod 
+			);
+	
+	public void onCloudDataServiceDone(
+			RequestWrapper request,
+			String serviceType,
+			String serviceMethod,
+			long elapsedTime
 			);
 	
 	/**

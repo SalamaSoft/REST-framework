@@ -92,6 +92,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 		if(_tracerClassName != null && _tracerClassName.trim().length() > 0) {
 			try {
 				_tracerClass = ClassLoaderUtil.getDefaultClassLoader().loadClass(_tracerClassName);
+				logger.debug("_tracerClass:" + _tracerClass.getName());
 			} catch (ClassNotFoundException e) {
 				logger.error("init()", e);
 				_tracerClass = null;
@@ -102,7 +103,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 			try {
 				_tracer = (ServiceTracer)_tracerClass.newInstance();
 				_tracer.init();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("init()", e);
 				_tracer = null;
 			}
@@ -173,6 +174,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 		if(uriType == null) {
 			return false;
 		} else {
+			long processBeginTime = System.currentTimeMillis();
 			
 			boolean isMultiPartRequest = FileUploadSupport.isMultipartContent(req);
 			HttpResponseWrapper responseWrapper = new HttpResponseWrapper(resp);
@@ -202,13 +204,21 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 					if(_tracer != null) {
 						_tracer.onCloudDataService(requestWrapper, serviceType, serviceMethod);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 
 				httpOutput(resp, 
 						_cloudDataService.cloudDataService(
 								serviceType, serviceMethod, requestWrapper, responseWrapper));
+				
+				try {
+					if(_tracer != null) {
+						_tracer.onCloudDataServiceDone(requestWrapper, serviceType, serviceMethod, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else if(uriType == SupportedServiceUri.ServiceTypeInvokeService) {
 				String serviceType;
 				String serviceMethod;
@@ -234,7 +244,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 								serviceType, serviceMethod, 
 								paramType, paramValueXml);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 				
@@ -246,6 +256,14 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 							requestWrapper, responseWrapper
 							)
 						);
+				
+				try {
+					if(_tracer != null) {
+						_tracer.onInvokeServiceDone(requestWrapper, serviceType, serviceMethod, paramType, paramValueXml, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else if (uriType == SupportedServiceUri.ServiceTypeDownloadService) {
 				String serviceType;
 
@@ -255,7 +273,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 					if(_tracer != null) {
 						_tracer.onDownloadService(requestWrapper, serviceType);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 				
@@ -263,6 +281,14 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 						serviceType, 
 						requestWrapper, responseWrapper 
 						);
+				
+				try {
+					if(_tracer != null) {
+						_tracer.onDownloadServiceDone(requestWrapper, serviceType, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else if (uriType == SupportedServiceUri.ServiceTypeUploadService) {
 				String serviceType = requestWrapper.getParameter(InvokeServiceParameterName.ServiceType);
 				String paramType = requestWrapper.getParameter(InvokeServiceParameterName.ParamType);
@@ -272,7 +298,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 					if(_tracer != null) {
 						_tracer.onUploadService(requestWrapper, serviceType, paramType, paramValueXml);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 				
@@ -284,6 +310,14 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 						paramValueXml,
 						(MultipartRequestWrapper)requestWrapper)
 				);
+
+				try {
+					if(_tracer != null) {
+						_tracer.onUploadServiceDone(requestWrapper, serviceType, paramType, paramValueXml, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else if (uriType == SupportedServiceUri.ServiceTypeSetSessionValue) {
 				String key;
 				String dataType; 
@@ -301,7 +335,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 					if(_tracer != null) {
 						_tracer.onSetSessionValue(requestWrapper, key, dataType, property, propertyType, valueXml);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 				
@@ -312,6 +346,14 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 								requestWrapper.getSession()
 								)
 						);
+
+				try {
+					if(_tracer != null) {
+						_tracer.onSetSessionValueDone(requestWrapper, key, dataType, property, propertyType, valueXml, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else if (uriType == SupportedServiceUri.ServiceTypeSetSessionValues) {
 				String sessionValueSetXml;
 				sessionValueSetXml = requestWrapper.getParameter(InvokeServiceParameterName.SessionValueSetXml);
@@ -320,7 +362,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 					if(_tracer != null) {
 						_tracer.onSetSessionValues(requestWrapper, sessionValueSetXml);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 
@@ -329,6 +371,14 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 						_invokeService.setSessionValues(sessionValueSetXml, 
 								requestWrapper.getSession())
 						);
+				
+				try {
+					if(_tracer != null) {
+						_tracer.onSetSessionValuesDone(requestWrapper, sessionValueSetXml, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else if (uriType == SupportedServiceUri.ServiceTypeGetSessionValue) {
 				String key;
 				String dataType; 
@@ -344,7 +394,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 					if(_tracer != null) {
 						_tracer.onGetSessionValue(requestWrapper, key, dataType, property, propertyType);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 
@@ -353,13 +403,21 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 						_invokeService.getSessionValue(key, dataType, property, propertyType, 
 								requestWrapper.getSession())
 						);
+				
+				try {
+					if(_tracer != null) {
+						_tracer.onGetSessionValueDone(requestWrapper, key, dataType, property, propertyType, (System.currentTimeMillis() - processBeginTime));
+					}
+				} catch(Throwable e) {
+					logger.error("processService()", e);
+				}
 			} else {
 				//impossible branch
 				try {
 					if(_tracer != null) {
 						_tracer.onUnSupportedService(requestWrapper);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					logger.error("processService()", e);
 				}
 			}
