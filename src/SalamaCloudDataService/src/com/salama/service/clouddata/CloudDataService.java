@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -461,7 +462,9 @@ public final class CloudDataService implements ICloudDataService {
 			Method method, RequestWrapper request, AppContext appContext
 			) throws MethodAccessNoAuthorityException 
 	{
-		String authTicket = request.getParameter(AUTH_TICKET);
+		//String authTicket = request.getParameter(AUTH_TICKET);
+		String authTicket = getAuthTicketFromRequest(((HttpServletRequest)request.getRequest()));
+		
 		AccessibleRoles accessibleRoles = null;
 
 		try {
@@ -665,6 +668,26 @@ public final class CloudDataService implements ICloudDataService {
 		return callbackFunc + "(\"" + notificationName + "\", \""
 				+ URLEncoder.encode(value, DefaultEncoding).replace("+", "%20")
 				+ "\")";
+	}
+
+	private final static String getAuthTicketFromRequest(HttpServletRequest request) {
+		String authTicket = request.getParameter(AUTH_TICKET);
+		
+		if(authTicket == null) {
+			//check cookies
+			Cookie[] cookies = request.getCookies();
+			if(cookies != null) {
+				for(int i = 0; i < cookies.length; i++) {
+					Cookie c = cookies[i];
+					if(AUTH_TICKET.equals(c.getName())) {
+						authTicket = c.getValue();
+						break;
+					}
+				}
+			}
+		}
+		
+		return authTicket;
 	}
 	
 }
