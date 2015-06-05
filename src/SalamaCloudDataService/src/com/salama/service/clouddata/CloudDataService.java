@@ -462,9 +462,6 @@ public final class CloudDataService implements ICloudDataService {
 			Method method, RequestWrapper request, AppContext appContext
 			) throws MethodAccessNoAuthorityException 
 	{
-		//String authTicket = request.getParameter(AUTH_TICKET);
-		String authTicket = getAuthTicketFromRequest(((HttpServletRequest)request.getRequest()));
-		
 		AccessibleRoles accessibleRoles = null;
 
 		try {
@@ -475,6 +472,9 @@ public final class CloudDataService implements ICloudDataService {
 		if(accessibleRoles == null || accessibleRoles.roles() == null || accessibleRoles.roles().length == 0 ) {
 			return true;
 		} else {
+			//String authTicket = request.getParameter(AUTH_TICKET);
+			String authTicket = getAuthTicketFromRequest(((HttpServletRequest)request.getRequest()));
+
 			boolean isAccessible = false;
 
 			String role = null;
