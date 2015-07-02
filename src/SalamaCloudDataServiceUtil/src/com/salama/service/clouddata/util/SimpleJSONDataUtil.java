@@ -18,12 +18,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import CollectionCommon.ITreeNode;
+import MetoXML.AbstractReflectInfoCachedSerializer;
+
 /**
  * 
  * @author XingGu Liu
  *
  */
-public class SimpleJSONDataUtil {
+public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 	private static Logger logger = Logger.getLogger(SimpleJSONDataUtil.class);
 
 	private static SimpleDateFormat JavaUtilDateFormatForParse = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
@@ -85,7 +88,8 @@ public class SimpleJSONDataUtil {
 	public static Object convertJSONToObject(JSONObject jsonObject, Class<?> objType) 
 			throws IntrospectionException, IllegalAccessException, InstantiationException, JSONException, 
 			ParseException, InvocationTargetException {
-		PropertyDescriptor[] properties = Introspector.getBeanInfo(objType).getPropertyDescriptors();
+//		PropertyDescriptor[] properties = Introspector.getBeanInfo(objType).getPropertyDescriptors();
+		PropertyDescriptor[] properties = findPropertyDescriptorArray(objType);
 		
 		Object data = objType.newInstance();
 		
@@ -162,6 +166,16 @@ public class SimpleJSONDataUtil {
 		} else {
 			return convertJSONToObject(valueStr, cls);
 		}
+	}
+
+	@Override
+	protected void BackwardToNode(ITreeNode arg0, int arg1) {
+		//do nothing
+	}
+
+	@Override
+	protected void ForwardToNode(ITreeNode arg0, int arg1, boolean arg2) {
+		//do nothing
 	}
 	
 
