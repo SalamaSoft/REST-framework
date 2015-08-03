@@ -93,26 +93,27 @@ public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 		
 		Object data = objType.newInstance();
 		
-		String strValue = null;
-		Object value = null;
-		PropertyDescriptor property = null;
-		String propName = null;
+		String strValue;
+		Object value;
+		PropertyDescriptor property;
+		String propName;
 		for(int i = 0; i < properties.length; i++) {
+			property = properties[i];
+			propName = property.getName(); 
+			if(propName.equals("class")) {
+				continue;
+			}
+			
 			try {
-				property = properties[i];
-				propName = property.getName(); 
-				if(propName.equals("class")) {
-					continue;
-				}
-				
 				strValue = jsonObject.get(propName).toString();
 				value = Convert(property.getPropertyType(), strValue);
-				property.getWriteMethod().invoke(data, value);
-			} catch (JSONException e) {
-				//do nothing
-				logger.error("convertJSONToObject()", e);
-				throw e;
+			} catch(JSONException e) {
+				//null
+				logger.warn("convertJSONToObject()", e);
+				value = Convert(property.getPropertyType(), null);
 			}
+			
+			property.getWriteMethod().invoke(data, value);
 		}
 		return data;
 	}
@@ -122,47 +123,55 @@ public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 		if(cls == String.class) {
 			return valueStr;
 		} else if(cls == boolean.class) {
-			return Boolean.valueOf(valueStr);
+			return valueStr == null? Boolean.valueOf(false) : Boolean.valueOf(valueStr);
 		} else if(cls == byte.class) {
-	    	return Byte.valueOf(valueStr);
+	    	return valueStr == null? Byte.valueOf((byte)0) : Byte.valueOf(valueStr);
     	} else if(cls == short.class) {
-    		return Short.valueOf(valueStr);
+    		return valueStr == null? Short.valueOf((short)0) : Short.valueOf(valueStr);
 		} else if(cls == int.class) {
-			return Integer.valueOf(valueStr);
+			return valueStr == null? Integer.valueOf(0) : Integer.valueOf(valueStr);
 		} else if(cls == long.class) {
-			return Long.valueOf(valueStr);
+			return valueStr == null? Long.valueOf(0) : Long.valueOf(valueStr);
 		} else if(cls == float.class) {
-			return Float.valueOf(valueStr);
+			return valueStr == null? Float.valueOf(0) : Float.valueOf(valueStr);
 		} else if(cls == double.class) {
-			return Double.valueOf(valueStr);
+			return valueStr == null? Double.valueOf(0) : Double.valueOf(valueStr);
 		} else if(cls == char.class) {
-			return valueStr.charAt(0);
+			return valueStr == null? Character.valueOf('\0') : valueStr.charAt(0);
 		} else if(cls == Boolean.class) {
-			return Boolean.valueOf(valueStr);
+			return valueStr == null? Boolean.valueOf(false) : Boolean.valueOf(valueStr);
 		} else if(cls == Byte.class) {
-	    	return Byte.valueOf(valueStr);
+	    	return valueStr == null? Byte.valueOf((byte)0) : Byte.valueOf(valueStr);
     	} else if(cls == Short.class) {
-    		return Short.valueOf(valueStr);
+    		return valueStr == null? Short.valueOf((short)0) : Short.valueOf(valueStr);
 		} else if(cls == Integer.class) {
-			return Integer.valueOf(valueStr);
+			return valueStr == null? Integer.valueOf(0) : Integer.valueOf(valueStr);
 		} else if(cls == Long.class) {
-			return Long.valueOf(valueStr);
+			return valueStr == null? Long.valueOf(0) : Long.valueOf(valueStr);
 		} else if(cls == Float.class) {
-			return Float.valueOf(valueStr);
+			return valueStr == null? Float.valueOf(0) : Float.valueOf(valueStr);
 		} else if(cls == Double.class) {
-			return Double.valueOf(valueStr);
+			return valueStr == null? Double.valueOf(0) : Double.valueOf(valueStr);
 		} else if(cls == Character.class) {
-			return valueStr.charAt(0);
+			return valueStr == null? Character.valueOf('\0') : valueStr.charAt(0);
 		} else if(cls == Date.class) {
-			return JavaUtilDateFormatForParse.parse(valueStr);
+			return valueStr == null? null : JavaUtilDateFormatForParse.parse(valueStr);
 		} else if(cls == java.sql.Date.class) {
-			Date date = JavaSqlDateFormatForParse.parse(valueStr);
-			return new java.sql.Date(date.getTime());
+			if(valueStr == null) {
+				return null;
+			} else {
+				Date date = JavaSqlDateFormatForParse.parse(valueStr);
+				return (new java.sql.Date(date.getTime()));
+			}
 		} else if(cls == java.sql.Timestamp.class) {
-			Date date = JavaSqlTimeStampFormatForParse.parse(valueStr);
-			return new Timestamp(date.getTime());
+			if(valueStr == null) {
+				return null;
+			} else {
+				Date date = JavaSqlTimeStampFormatForParse.parse(valueStr);
+				return new Timestamp(date.getTime());
+			}
 		} else if(cls == BigDecimal.class) {
-			return new BigDecimal(valueStr);
+			return valueStr == null? BigDecimal.valueOf(0) : (new BigDecimal(valueStr));
 		} else {
 			return convertJSONToObject(valueStr, cls);
 		}
