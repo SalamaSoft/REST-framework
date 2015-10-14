@@ -18,12 +18,12 @@ import com.salama.service.clouddata.util.dao.UpdateDataDao;
 import com.salama.service.core.net.RequestWrapper;
 
 /**
- * 
+ * @deprecated 
  * @author XingGu Liu
  *
  */
+/*
 public class UpdateDataService {
-	/*
 	private static Logger logger = Logger.getLogger(UpdateDataService.class);
 	
 	public static final String PARAM_NAME_METHOD = "method";
@@ -166,5 +166,5 @@ public class UpdateDataService {
 		
 		return pks;
 	}
-	*/
 }
+*/

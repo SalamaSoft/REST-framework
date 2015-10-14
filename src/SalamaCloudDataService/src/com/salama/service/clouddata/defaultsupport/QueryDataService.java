@@ -16,12 +16,12 @@ import com.salama.service.core.net.RequestWrapper;
 import com.salama.service.core.net.ResponseWrapper;
 
 /**
- * 
+ * @deprecated
  * @author XingGu Liu
  *
  */
+/*
 public class QueryDataService {
-	/*
 	private static Logger logger = Logger.getLogger(QueryDataService.class);
 
 	public static final String PARAM_NAME_METHOD = "method";
@@ -181,5 +181,5 @@ public class QueryDataService {
 			}
 		}
 	}
-	*/
 }
+*/

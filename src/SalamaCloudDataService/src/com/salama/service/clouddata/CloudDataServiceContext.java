@@ -31,6 +31,7 @@ import com.salama.service.clouddata.core.AppServiceContext;
 import com.salama.service.clouddata.core.AppServiceFilter;
 import com.salama.service.clouddata.core.ICloudDataService;
 import com.salama.service.clouddata.core.ICloudDataServiceContext;
+import com.salama.service.clouddata.defaultsupport.DefaultSupportService;
 
 /**
  * 
@@ -105,6 +106,13 @@ public class CloudDataServiceContext implements ICloudDataServiceContext {
 		//Class pool of javaassist
 		ClassPool clsPool = ClassPool.getDefault();
 		
+		//load classes of DefaultSupport -----
+		_appClassFinderTemp.clearPreScannedClass();
+		_appClassFinderTemp.loadClassOfPackage(DefaultSupportService.class.getPackage().getName());
+		_allAppClassFinder.getClassNameMap().putAll(_appClassFinderTemp.getClassNameMap());
+		_allAppClassFinder.getClassFullNameMap().putAll(_appClassFinderTemp.getClassFullNameMap());
+		
+		//create app context ------
 		for(CloudDataAppConfig appConfig : _cloudDataServiceContextConfig.getAppConfigs()) {
 			try {
 				//reload package

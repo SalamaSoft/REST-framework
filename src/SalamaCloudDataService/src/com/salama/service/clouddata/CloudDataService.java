@@ -34,6 +34,7 @@ import com.salama.service.clouddata.core.annotation.ClientService;
 import com.salama.service.clouddata.core.annotation.ClientService.NotificationNameParamType;
 import com.salama.service.clouddata.core.annotation.ConverterType;
 import com.salama.service.clouddata.core.annotation.ReturnValueConverter;
+import com.salama.service.clouddata.defaultsupport.DefaultSupportService;
 import com.salama.service.clouddata.util.JavaAssistUtil;
 import com.salama.service.clouddata.util.SimpleJSONDataUtil;
 import com.salama.service.clouddata.util.XmlDataUtil;
@@ -212,13 +213,21 @@ public final class CloudDataService implements ICloudDataService {
 
 		//appServiceFilter
 		boolean isNeedDoAppServiceFilter = false;
-		if(CloudDataAppContext.class.isAssignableFrom(appContext.getClass())) {
+		if(appContext != null && CloudDataAppContext.class.isAssignableFrom(appContext.getClass())) {
 			if(!((CloudDataAppContext)appContext).isPackageExposed(serviceType)) {
 				throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
 			}
 
 			if(((CloudDataAppContext)appContext).getAppServiceFilter() != null) {
 				isNeedDoAppServiceFilter = true;
+			}
+		} else {
+			//check whether the serviceType is enabled to be exposed
+			if(serviceTypeClass.getPackage().getName().equals(
+					DefaultSupportService.class.getPackage().getName())) {
+				//in DefaultSupport
+			} else {
+				throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
 			}
 		}
 		
