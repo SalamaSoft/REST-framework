@@ -3,6 +3,7 @@ package com.salama.service.clouddata.util;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -93,8 +94,6 @@ public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 		
 		Object data = objType.newInstance();
 		
-		String strValue;
-		Object value;
 		PropertyDescriptor property;
 		String propName;
 		for(int i = 0; i < properties.length; i++) {
@@ -104,9 +103,30 @@ public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 				continue;
 			}
 			
+			if(!jsonObject.has(propName)) {
+				continue;
+			}
+							
+			Object value;
 			try {
-				strValue = jsonObject.get(propName).toString();
-				value = Convert(property.getPropertyType(), strValue);
+				if(isList(property.getPropertyType())) {
+					String strValue = jsonObject.get(propName).toString();
+					value = convertJSONToListObject(strValue, objType);
+				} else if(isArray(property.getPropertyType())) {
+					JSONArray jsonArray = (JSONArray) jsonObject.get(propName);
+					
+					Class<?> elementType = property.getPropertyType().getComponentType();
+					value = Array.newInstance(elementType, jsonArray.length());
+					for(int k = 0; k < jsonArray.length(); k++) {
+						JSONObject jsonObjInArray = jsonArray.getJSONObject(k);
+						Array.set(value, k, convertJSONToObject(jsonObjInArray, elementType));
+					}
+				} else if(property.getPropertyType() == String.class) {
+					value = jsonObject.getString(propName);
+				} else {
+					String strValue = jsonObject.get(propName).toString();
+					value = Convert(property.getPropertyType(), strValue);
+				}
 			} catch(JSONException e) {
 				//null
 				logger.warn("convertJSONToObject()", e);
@@ -187,5 +207,12 @@ public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 		//do nothing
 	}
 	
+    private static boolean isArray(Class<?> cls) {
+    	return cls.isArray();
+    }
+
+    private static boolean isList(Class<?> cls) {
+    	return List.class.isAssignableFrom(cls);
+    }
 
 }
