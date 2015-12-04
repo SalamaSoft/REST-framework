@@ -401,7 +401,7 @@ public final class CloudDataService implements ICloudDataService {
 				if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
 					returnValue = serviceFilterResult.serviceReturnValue;
 				} else {
-					returnValue = method.invoke(service, request, response);
+					returnValue = method.invoke(service, paramValues);
 				}
 			} else {
 				returnValue = method.invoke(service, paramValues);
