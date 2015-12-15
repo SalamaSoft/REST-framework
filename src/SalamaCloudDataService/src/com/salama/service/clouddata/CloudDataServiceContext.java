@@ -149,7 +149,7 @@ public class CloudDataServiceContext implements ICloudDataServiceContext {
 						&& appConfig.getAppServiceFilterSetting().getClassName() != null
 						&& appConfig.getAppServiceFilterSetting().getClassName().trim().length() > 0) {
 					appServiceFilter = (AppServiceFilter) createByClassConstructorSetting(appConfig.getAppServiceFilterSetting());
-					logger.debug("appServiceFilter.class:" + authUserManager.getClass().getName());
+					logger.debug("appServiceFilter.class:" + appConfig.getAppServiceFilterSetting().getClassName());
 				}
 				
 				//create appContext
