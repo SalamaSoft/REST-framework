@@ -52,7 +52,7 @@ public final class ContentTypeHelper {
 	
 	public final static String ApplicationMsPowerPoint = "application/ms-powerpoint";
 	
-	public final static String ApplicationMsProject = "application//vnd.ms-project";
+	public final static String ApplicationMsProject = "application/vnd.ms-project";
 	
 	public final static String ApplicationMsWorks = "application/vnd.ms-works";
 	
