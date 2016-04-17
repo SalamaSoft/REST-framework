@@ -6,7 +6,10 @@ public class ${dataName} implements Serializable {
 
 #foreach( $property in $propertyList)
 	private ${property.type} _${property.name} = ${property.defaultValue};
+	
+#end
 
+#foreach( $property in $propertyList)
 	public ${property.type} get${property.nameWithUpperCasePrefix}() {
 		return _${property.name};
 	}
