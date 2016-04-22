@@ -482,7 +482,7 @@ public final class CloudDataService implements ICloudDataService {
 			return true;
 		} else {
 			//String authTicket = request.getParameter(AUTH_TICKET);
-			String authTicket = getAuthTicketFromRequest(((HttpServletRequest)request.getRequest()));
+			String authTicket = getAuthTicketFromRequest(request);
 
 			boolean isAccessible = false;
 
@@ -679,12 +679,13 @@ public final class CloudDataService implements ICloudDataService {
 				+ "\")";
 	}
 
-	private final static String getAuthTicketFromRequest(HttpServletRequest request) {
+	private final static String getAuthTicketFromRequest(RequestWrapper request) {
 		String authTicket = request.getParameter(AUTH_TICKET);
 		
 		if(authTicket == null) {
 			//check cookies
-			Cookie[] cookies = request.getCookies();
+			HttpServletRequest httpRequest = (HttpServletRequest) request.getRequest();
+			Cookie[] cookies = httpRequest.getCookies();
 			if(cookies != null) {
 				for(int i = 0; i < cookies.length; i++) {
 					Cookie c = cookies[i];
