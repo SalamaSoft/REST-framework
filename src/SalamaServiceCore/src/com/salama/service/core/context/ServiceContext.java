@@ -26,6 +26,11 @@ public class ServiceContext implements CommonContext {
 
 	private static final Logger logger = Logger
 			.getLogger(ServiceContext.class);
+	
+	private final static String VERSION = "20160505";
+	static {
+		logger.info("SalamaServiceCore VERSION:" + VERSION);
+	}
 
 	private com.salama.service.core.context.config.ServiceContext _serviceContextConfig = null;
 	
@@ -90,6 +95,7 @@ public class ServiceContext implements CommonContext {
 	
 	@Override
 	public void destroy() {
+		/* 
 		Collection<CommonContext> contextCol =  _contextMap.values();
 		
 		Iterator<CommonContext> contextIte = contextCol.iterator();
@@ -99,6 +105,22 @@ public class ServiceContext implements CommonContext {
 			context = contextIte.next();
 			context.destroy();
 		}
+		*/
+		
+		//Context should be destroyed in the reverse order of initializing
+		int size = _serviceContextConfig.getContexts().size();
+		for(int i = size - 1; i >= 0; i--) {
+			ContextSetting contextSetting = _serviceContextConfig.getContexts().get(i);
+			String contextClassName = contextSetting.getContextClass().trim();
+			
+			try {
+				CommonContext contextInstance = _contextMap.get(contextClassName);
+				contextInstance.destroy();
+			} catch (Throwable e) {
+				logger.error("Error occurred in destroying", e);
+			}
+		}
+
 		
 		_contextMap.clear();
 	}
