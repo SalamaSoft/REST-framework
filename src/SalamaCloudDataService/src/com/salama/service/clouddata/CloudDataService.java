@@ -96,13 +96,13 @@ public final class CloudDataService implements ICloudDataService {
 					logger.error("No authority to access method:" + serviceType + "." + serviceMethod + "()");
 					return "";
 				}
+				
+				String returnVal = invokeMethod(serviceType, serviceMethod, serviceTypeClass, method, request, response, appContext);
+				logger.debug("returnValue:\r\n" + returnVal);
+				return returnVal;
 			} catch(MethodAccessNoAuthorityException noAuthError) {
 				return "<Error>".concat("<type>").concat("MethodAccessNoAuthorityException").concat("</type>").concat("</Error>");
 			}
-
-			String returnVal = invokeMethod(serviceType, serviceMethod, serviceTypeClass, method, request, response, appContext);
-			logger.debug("returnValue:\r\n" + returnVal);
-			return returnVal;
 		} catch (Exception e) {
 			logger.error("dataService()", e);
 			return null;
