@@ -58,6 +58,11 @@ public final class CloudDataService implements ICloudDataService {
 	public static final Charset DefaultCharset = Charset.forName(DefaultEncoding);
 	public static final String DefaultContentTypeCharset = ";charset=utf-8";
 	
+	private static final String ReturnValue_Xml_MethodAccessNoAuthority = 
+			"<Error><type>MethodAccessNoAuthorityException</type></Error>";
+	private static final String ReturnValue_Json_MethodAccessNoAuthority = 
+			"{\"type\":\"MethodAccessNoAuthorityException\"}";
+	
 	//public static final String HTTP_HEAD_NAME_WEB_CLIENT_SERVICE = "webclientservice_callback";
 
 	private final static Class<?>[] StandardCloudDataServiceParamTypes = new Class[]{RequestWrapper.class, ResponseWrapper.class}; 
@@ -79,7 +84,9 @@ public final class CloudDataService implements ICloudDataService {
 			RequestWrapper request,
 			ResponseWrapper response) {
 		try {
-			logger.debug("cloudDataService() serviceType:" + serviceType + " serviceMethod:" + serviceMethod);
+			if(logger.isDebugEnabled()) {
+				logger.debug("cloudDataService() serviceType:" + serviceType + " serviceMethod:" + serviceMethod);
+			}
 
 			response.setStatus(HttpServletResponse.SC_OK);
 			
@@ -96,13 +103,15 @@ public final class CloudDataService implements ICloudDataService {
 					logger.error("No authority to access method:" + serviceType + "." + serviceMethod + "()");
 					return "";
 				}
-				
-				String returnVal = invokeMethod(serviceType, serviceMethod, serviceTypeClass, method, request, response, appContext);
-				logger.debug("returnValue:\r\n" + returnVal);
-				return returnVal;
 			} catch(MethodAccessNoAuthorityException noAuthError) {
-				return "<Error>".concat("<type>").concat("MethodAccessNoAuthorityException").concat("</type>").concat("</Error>");
+				return ReturnValue_Xml_MethodAccessNoAuthority;
 			}
+			
+			String returnVal = invokeMethod(serviceType, serviceMethod, serviceTypeClass, method, request, response, appContext);
+			if(logger.isDebugEnabled()) {
+				logger.debug("returnValue:\r\n" + returnVal);
+			}
+			return returnVal;
 		} catch (Exception e) {
 			logger.error("dataService()", e);
 			return null;
@@ -167,12 +176,13 @@ public final class CloudDataService implements ICloudDataService {
 			service = serviceTypeClass.newInstance();
 			isStaticMethod = false;
 		}
-
+		
 		//before invoke set the default content type
 		ReturnValueConverter returnValueConverter = null;
 		try {
 			returnValueConverter = method.getAnnotation(ReturnValueConverter.class);
-		} catch(Exception ex) {
+		} catch(Throwable e) {
+			logger.error(null, e);
 		}
 		
 		String callbackFunc = null;
@@ -180,9 +190,10 @@ public final class CloudDataService implements ICloudDataService {
 		ClientService clientService = null;
 		try {
 			clientService = method.getAnnotation(ClientService.class);
-		} catch(Exception ex) {
+		} catch(Throwable e) {
+			logger.error(null, e);
 		}
-		
+
 		/*
 		if(returnValueConverter != null) {
 			if(returnValueConverter.value() == ConverterType.PLAIN_TEXT) {
@@ -196,148 +207,82 @@ public final class CloudDataService implements ICloudDataService {
 			response.setContentType(ContentTypeHelper.TextPlain);
 		}
 		*/
-
-		Class<?>[] paramTypes = method.getParameterTypes();
-		boolean isStandardServiceMethd = false;
-		if((paramTypes.length == 2)
-				&& RequestWrapper.class.isAssignableFrom(paramTypes[0])
-				&& ResponseWrapper.class.isAssignableFrom(paramTypes[1])
-				) {
-			isStandardServiceMethd = true;
-		}
 		
-		Object returnValue = null;
+		try {
 
-		//String webServiceClientCallBack = ((HttpServletRequest)request.getRequest()).getHeader(HTTP_HEAD_NAME_WEB_CLIENT_SERVICE);
-		//logger.debug("webServiceClientCallBack:" + webServiceClientCallBack);
-
-		//appServiceFilter
-		boolean isNeedDoAppServiceFilter = false;
-		if(appContext != null && CloudDataAppContext.class.isAssignableFrom(appContext.getClass())) {
-			if(!((CloudDataAppContext)appContext).isPackageExposed(serviceType)) {
-				throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+			Class<?>[] paramTypes = method.getParameterTypes();
+			boolean isStandardServiceMethd = false;
+			if((paramTypes.length == 2)
+					&& RequestWrapper.class.isAssignableFrom(paramTypes[0])
+					&& ResponseWrapper.class.isAssignableFrom(paramTypes[1])
+					) {
+				isStandardServiceMethd = true;
 			}
+			
+			Object returnValue = null;
 
-			if(((CloudDataAppContext)appContext).getAppServiceFilter() != null) {
-				isNeedDoAppServiceFilter = true;
-			}
-		} else {
-			//check whether the serviceType is enabled to be exposed
-			if(serviceTypeClass.getPackage().getName().equals(
-					DefaultSupportService.class.getPackage().getName())) {
-				//in DefaultSupport
+			//String webServiceClientCallBack = ((HttpServletRequest)request.getRequest()).getHeader(HTTP_HEAD_NAME_WEB_CLIENT_SERVICE);
+			//logger.debug("webServiceClientCallBack:" + webServiceClientCallBack);
+
+			//appServiceFilter
+			boolean isNeedDoAppServiceFilter = false;
+			if(appContext != null && CloudDataAppContext.class.isAssignableFrom(appContext.getClass())) {
+				if(!((CloudDataAppContext)appContext).isPackageExposed(serviceType)) {
+					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+				}
+
+				if(((CloudDataAppContext)appContext).getAppServiceFilter() != null) {
+					isNeedDoAppServiceFilter = true;
+				}
 			} else {
-				throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+				//check whether the serviceType is enabled to be exposed
+				if(serviceTypeClass.getPackage().getName().equals(
+						DefaultSupportService.class.getPackage().getName())) {
+					//in DefaultSupport
+				} else {
+					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+				}
 			}
-		}
-		
-		if(isStandardServiceMethd) {
-			if(isNeedDoAppServiceFilter) {
-				ServiceFilterResult serviceFilterResult = ((CloudDataAppContext)appContext).getAppServiceFilter().filter(
-						request, response, isStandardServiceMethd, method, service, null);
-				if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
-					returnValue = serviceFilterResult.serviceReturnValue;
+			
+			if(isStandardServiceMethd) {
+				if(isNeedDoAppServiceFilter) {
+					ServiceFilterResult serviceFilterResult = ((CloudDataAppContext)appContext).getAppServiceFilter().filter(
+							request, response, isStandardServiceMethd, method, service, null);
+					if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
+						returnValue = serviceFilterResult.serviceReturnValue;
+					} else {
+						returnValue = method.invoke(service, request, response);
+					}
 				} else {
 					returnValue = method.invoke(service, request, response);
 				}
 			} else {
-				returnValue = method.invoke(service, request, response);
-			}
-		} else {
-			//handle parameters ----------
-			Object[] paramValues = null;
-			if(clientService == null) {
-				//parameter value is achieved from request parameter
-				if(paramTypes.length > 0) {
-					paramValues = new Object[paramTypes.length];
+				//handle parameters ----------
+				Object[] paramValues = null;
+				if(clientService == null) {
+					//parameter value is achieved from request parameter
+					if(paramTypes.length > 0) {
+						paramValues = new Object[paramTypes.length];
 
-					LocalVariableAttribute localVarAttr = JavaAssistUtil.getLocalVariableAttribute(serviceType, serviceMethod);
-					if(localVarAttr == null) {
-						throw new RuntimeException("getLocalVariableAttribute() failed. ServiceType:" + serviceType + " serviceMethod:" + serviceMethod);
-					}
-
-					/* no need to decode URI parameter, because the web server has decoded it.
-					boolean isParamNeedDecode = isParamNeedDecode(request, returnValueConverter);
-					String requestEncoding = request.getCharacterEncoding();
-					if(requestEncoding == null || requestEncoding.length() == 0) {
-						requestEncoding = "utf-8";
-					}
-					*/
-					
-					Class<?> paramType = null;
-					String paramName = null;
-					for(int i = 0; i < paramTypes.length; i++) {
-						paramType = paramTypes[i];
-						paramName = JavaAssistUtil.getParameterName(localVarAttr, i, isStaticMethod);
-						
-						if(paramType == (String.class)) {
-							/* no need to decode URI parameter, because the web server has decoded it.
-							if(isParamNeedDecode) {
-								paramValues[i] = getDecodedRequestParam(request, paramName, requestEncoding);
-							} else {
-								paramValues[i] = request.getParameter(paramName);
-							}
-							*/
-
-							paramValues[i] = request.getParameter(paramName);
-							logger.debug("paramName:" + paramName + " paramValue:" + paramValues[i]);
-						} else if (paramType == (MultipartFile.class)) {
-							paramValues[i] = ((MultipartRequestWrapper)request).getFile(paramName);
-							logger.debug("paramName:" + paramName + " (MultiPartFile)");
-						} else if (paramType == (RequestWrapper.class)) {
-							paramValues[i] = request;
-						} else if (paramType == (ResponseWrapper.class)) {
-							paramValues[i] = response;
-						} else if (paramType.isPrimitive()) {
-							String val;
-							/* no need to decode URI parameter, because the web server has decoded it.
-							if(isParamNeedDecode) {
-								val = getDecodedRequestParam(request, paramName, requestEncoding);
-							} else {
-								val = request.getParameter(paramName);
-							}
-							*/
-
-							val = request.getParameter(paramName);
-							paramValues[i] = convertStringToPrimitiveType(val, paramType);
-							logger.debug("paramName:" + paramName + " paramValue:" + val);
-						} else {
-							throw new RuntimeException("Not support the param type:" + paramType.getName());
+						LocalVariableAttribute localVarAttr = JavaAssistUtil.getLocalVariableAttribute(serviceType, serviceMethod);
+						if(localVarAttr == null) {
+							throw new RuntimeException("getLocalVariableAttribute() failed. ServiceType:" + serviceType + " serviceMethod:" + serviceMethod);
 						}
-					}
-				}
-			} else {
-				int index = 0;
-				String paramNamePrefix = "params[";
-				String paramNameSuffix = "]";
 
-				if(paramTypes.length > 0) {
-					paramValues = new Object[paramTypes.length];
-
-					/* no need to decode URI parameter, because the web server has decoded it.
-					boolean isParamNeedDecode = isParamNeedDecode(request, returnValueConverter);
-					String requestEncoding = request.getCharacterEncoding();
-					if(requestEncoding == null || requestEncoding.length() == 0) {
-						requestEncoding = "utf-8";
-					}
-					*/
-					
-					Class<?> paramType = null;
-					for(int i = 0; i < paramTypes.length; i++) {
-						paramType = paramTypes[i];
-
-						if (paramType == (RequestWrapper.class)) {
-							paramValues[i] = request;
-						} else if (paramType == (ResponseWrapper.class)) {
-							paramValues[i] = response;
-						} else {
-							String paramName = paramNamePrefix + Integer.toString(index++) + paramNameSuffix;
-
-							if(clientService.notificationNameParamType() == NotificationNameParamType.FirstParam
-									&& index == 0) {
-								notificationName = request.getParameter(paramName);
-							} 
-
+						/* no need to decode URI parameter, because the web server has decoded it.
+						boolean isParamNeedDecode = isParamNeedDecode(request, returnValueConverter);
+						String requestEncoding = request.getCharacterEncoding();
+						if(requestEncoding == null || requestEncoding.length() == 0) {
+							requestEncoding = "utf-8";
+						}
+						*/
+						
+						Class<?> paramType = null;
+						String paramName = null;
+						for(int i = 0; i < paramTypes.length; i++) {
+							paramType = paramTypes[i];
+							paramName = JavaAssistUtil.getParameterName(localVarAttr, i, isStaticMethod);
+							
 							if(paramType == (String.class)) {
 								/* no need to decode URI parameter, because the web server has decoded it.
 								if(isParamNeedDecode) {
@@ -348,10 +293,18 @@ public final class CloudDataService implements ICloudDataService {
 								*/
 
 								paramValues[i] = request.getParameter(paramName);
-								logger.debug("paramName:" + paramName + " paramValue:" + paramValues[i]);
+								if(logger.isDebugEnabled()) {
+									logger.debug("paramName:" + paramName + " paramValue:" + paramValues[i]);
+								}
 							} else if (paramType == (MultipartFile.class)) {
 								paramValues[i] = ((MultipartRequestWrapper)request).getFile(paramName);
-								logger.debug("paramName:" + paramName + " (MultiPartFile)");
+								if(logger.isDebugEnabled()) {
+									logger.debug("paramName:" + paramName + " (MultiPartFile)");
+								}
+							} else if (paramType == (RequestWrapper.class)) {
+								paramValues[i] = request;
+							} else if (paramType == (ResponseWrapper.class)) {
+								paramValues[i] = response;
 							} else if (paramType.isPrimitive()) {
 								String val;
 								/* no need to decode URI parameter, because the web server has decoded it.
@@ -364,58 +317,153 @@ public final class CloudDataService implements ICloudDataService {
 
 								val = request.getParameter(paramName);
 								paramValues[i] = convertStringToPrimitiveType(val, paramType);
-								logger.debug("paramName:" + paramName + " paramValue:" + val);
+								if(logger.isDebugEnabled()) {
+									logger.debug("paramName:" + paramName + " paramValue:" + val);
+								}
 							} else {
 								throw new RuntimeException("Not support the param type:" + paramType.getName());
 							}
-						} //
-					} // for
-				}
+						}
+					}
+				} else {
+					int index = 0;
+					String paramNamePrefix = "params[";
+					String paramNameSuffix = "]";
 
-				if(clientService.notificationNameParamType() == NotificationNameParamType.ByName) {
-					notificationName = request.getParameter(clientService.notificationNameFromRequestParam());
-				} else if(clientService.notificationNameParamType() == NotificationNameParamType.LastParam) {
-					String paramName = paramNamePrefix + Integer.toString(index) + paramNameSuffix;
-					notificationName = request.getParameter(paramName);
+					if(paramTypes.length > 0) {
+						paramValues = new Object[paramTypes.length];
+
+						/* no need to decode URI parameter, because the web server has decoded it.
+						boolean isParamNeedDecode = isParamNeedDecode(request, returnValueConverter);
+						String requestEncoding = request.getCharacterEncoding();
+						if(requestEncoding == null || requestEncoding.length() == 0) {
+							requestEncoding = "utf-8";
+						}
+						*/
+						
+						Class<?> paramType = null;
+						for(int i = 0; i < paramTypes.length; i++) {
+							paramType = paramTypes[i];
+
+							if (paramType == (RequestWrapper.class)) {
+								paramValues[i] = request;
+							} else if (paramType == (ResponseWrapper.class)) {
+								paramValues[i] = response;
+							} else {
+								String paramName = paramNamePrefix + Integer.toString(index++) + paramNameSuffix;
+
+								if(clientService.notificationNameParamType() == NotificationNameParamType.FirstParam
+										&& index == 0) {
+									notificationName = request.getParameter(paramName);
+								} 
+
+								if(paramType == (String.class)) {
+									/* no need to decode URI parameter, because the web server has decoded it.
+									if(isParamNeedDecode) {
+										paramValues[i] = getDecodedRequestParam(request, paramName, requestEncoding);
+									} else {
+										paramValues[i] = request.getParameter(paramName);
+									}
+									*/
+
+									paramValues[i] = request.getParameter(paramName);
+									if(logger.isDebugEnabled()) {
+										logger.debug("paramName:" + paramName + " paramValue:" + paramValues[i]);
+									}
+								} else if (paramType == (MultipartFile.class)) {
+									paramValues[i] = ((MultipartRequestWrapper)request).getFile(paramName);
+									if(logger.isDebugEnabled()) {
+										logger.debug("paramName:" + paramName + " (MultiPartFile)");
+									}
+								} else if (paramType.isPrimitive()) {
+									String val;
+									/* no need to decode URI parameter, because the web server has decoded it.
+									if(isParamNeedDecode) {
+										val = getDecodedRequestParam(request, paramName, requestEncoding);
+									} else {
+										val = request.getParameter(paramName);
+									}
+									*/
+
+									val = request.getParameter(paramName);
+									paramValues[i] = convertStringToPrimitiveType(val, paramType);
+									if(logger.isDebugEnabled()) {
+										logger.debug("paramName:" + paramName + " paramValue:" + val);
+									}
+								} else {
+									throw new RuntimeException("Not support the param type:" + paramType.getName());
+								}
+							} //
+						} // for
+					}
+
+					if(clientService.notificationNameParamType() == NotificationNameParamType.ByName) {
+						notificationName = request.getParameter(clientService.notificationNameFromRequestParam());
+					} else if(clientService.notificationNameParamType() == NotificationNameParamType.LastParam) {
+						String paramName = paramNamePrefix + Integer.toString(index) + paramNameSuffix;
+						notificationName = request.getParameter(paramName);
+						
+						if(notificationName == null && index > 0) {
+							paramName = paramNamePrefix + Integer.toString(index-1) + paramNameSuffix;
+						}
+					}
+					if(notificationName != null) {
+						notificationName = notificationName.trim();
+					}
 					
-					if(notificationName == null && index > 0) {
-						paramName = paramNamePrefix + Integer.toString(index-1) + paramNameSuffix;
+					if(clientService.callBackNameFromRequestParam() != null) {
+						callbackFunc = request.getParameter(clientService.callBackNameFromRequestParam());
+						if(callbackFunc != null) {
+							callbackFunc = callbackFunc.trim();
+						}
 					}
-				}
-				if(notificationName != null) {
-					notificationName = notificationName.trim();
-				}
+				} //if
 				
-				if(clientService.callBackNameFromRequestParam() != null) {
-					callbackFunc = request.getParameter(clientService.callBackNameFromRequestParam());
-					if(callbackFunc != null) {
-						callbackFunc = callbackFunc.trim();
+				//invoke ----------
+				if(isNeedDoAppServiceFilter) {
+					ServiceFilterResult serviceFilterResult = ((CloudDataAppContext)appContext).getAppServiceFilter().filter(
+							request, response, isStandardServiceMethd, method, service, paramValues);
+					if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
+						returnValue = serviceFilterResult.serviceReturnValue;
+					} else {
+						returnValue = method.invoke(service, paramValues);
 					}
-				}
-			} //if
-			
-			//invoke ----------
-			if(isNeedDoAppServiceFilter) {
-				ServiceFilterResult serviceFilterResult = ((CloudDataAppContext)appContext).getAppServiceFilter().filter(
-						request, response, isStandardServiceMethd, method, service, paramValues);
-				if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
-					returnValue = serviceFilterResult.serviceReturnValue;
 				} else {
 					returnValue = method.invoke(service, paramValues);
 				}
-			} else {
-				returnValue = method.invoke(service, paramValues);
 			}
-		}
-		
-		//invoke the method
-		if(method.getReturnType() == (void.class)) {
-			return null;
-		} else {
-			//convert return value
-			return convertReturnValue(request, response, 
-					returnValueConverter, returnValue, 
-					clientService, callbackFunc, notificationName);
+			
+			//invoke the method
+			if(method.getReturnType() == (void.class)) {
+				return null;
+			} else {
+				//convert return value
+				return convertReturnValue(request, response, 
+						returnValueConverter, returnValue, 
+						clientService, callbackFunc, notificationName,
+						false
+						);
+			}
+		} catch (InvocationTargetException e) {
+			if(e.getCause() != null && e.getCause().getClass() == MethodAccessNoAuthorityException.class) {
+				String returnValue = ReturnValue_Xml_MethodAccessNoAuthority;
+				if(returnValueConverter.valueFromRequestParam() != null) {
+					String strConverterType = request.getParameter(returnValueConverter.valueFromRequestParam());
+					if(strConverterType != null 
+							&& strConverterType.startsWith(ReturnValueConverter.COVERT_TYPE_JSON)
+					) {
+						returnValue = ReturnValue_Json_MethodAccessNoAuthority;
+					}
+				} 
+				
+				return convertReturnValue(request, response, 
+						returnValueConverter, returnValue, 
+						clientService, callbackFunc, notificationName,
+						true
+						);
+			} else {
+				throw e;
+			}
 		}
 	}
 		
@@ -554,12 +602,16 @@ public final class CloudDataService implements ICloudDataService {
 		}
 	}
 */	
-	private static String convertReturnValue(RequestWrapper request, ResponseWrapper response,
+	private static String convertReturnValue(
+			RequestWrapper request, ResponseWrapper response,
 			ReturnValueConverter returnValueConverter, Object returnValue,
-			ClientService clientService, String callbackFunc, String notificationName)
+			ClientService clientService, String callbackFunc, String notificationName,
+			boolean overrideSkipObjectConvert 
+			)
 			throws IntrospectionException, IllegalAccessException, InvocationTargetException, IOException {
 		//judge the convert type
 		ConverterType converterType = ConverterType.PLAIN_TEXT;
+		boolean skipObjectConvert = overrideSkipObjectConvert? true : returnValueConverter.skipObjectConvert();
 		
 		if(returnValueConverter != null) {
 			if((returnValueConverter.valueFromRequestParam() != null) 
@@ -600,7 +652,7 @@ public final class CloudDataService implements ICloudDataService {
 			value = "";
 		} else {
 			if(returnValueConverter != null 
-					&& returnValueConverter.skipObjectConvert()
+					&& skipObjectConvert
 					) {
 				if(String.class.isAssignableFrom(returnValue.getClass())) {
 					value = (String) returnValue;
