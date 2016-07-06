@@ -447,7 +447,7 @@ public final class CloudDataService implements ICloudDataService {
 		} catch (InvocationTargetException e) {
 			if(e.getCause() != null && e.getCause().getClass() == MethodAccessNoAuthorityException.class) {
 				String returnValue = ReturnValue_Xml_MethodAccessNoAuthority;
-				if(returnValueConverter.valueFromRequestParam() != null) {
+				if(returnValueConverter != null && returnValueConverter.valueFromRequestParam() != null) {
 					String strConverterType = request.getParameter(returnValueConverter.valueFromRequestParam());
 					if(strConverterType != null 
 							&& strConverterType.startsWith(ReturnValueConverter.COVERT_TYPE_JSON)
@@ -611,7 +611,6 @@ public final class CloudDataService implements ICloudDataService {
 			throws IntrospectionException, IllegalAccessException, InvocationTargetException, IOException {
 		//judge the convert type
 		ConverterType converterType = ConverterType.PLAIN_TEXT;
-		boolean skipObjectConvert = overrideSkipObjectConvert? true : returnValueConverter.skipObjectConvert();
 		
 		if(returnValueConverter != null) {
 			if((returnValueConverter.valueFromRequestParam() != null) 
@@ -652,7 +651,9 @@ public final class CloudDataService implements ICloudDataService {
 			value = "";
 		} else {
 			if(returnValueConverter != null 
-					&& skipObjectConvert
+					&& (overrideSkipObjectConvert
+							|| returnValueConverter.skipObjectConvert()
+						)
 					) {
 				if(String.class.isAssignableFrom(returnValue.getClass())) {
 					value = (String) returnValue;
