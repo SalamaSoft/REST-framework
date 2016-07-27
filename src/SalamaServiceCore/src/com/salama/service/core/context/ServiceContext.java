@@ -108,19 +108,20 @@ public class ServiceContext implements CommonContext {
 		*/
 		
 		//Context should be destroyed in the reverse order of initializing
-		int size = _serviceContextConfig.getContexts().size();
-		for(int i = size - 1; i >= 0; i--) {
-			ContextSetting contextSetting = _serviceContextConfig.getContexts().get(i);
-			String contextClassName = contextSetting.getContextClass().trim();
-			
-			try {
-				CommonContext contextInstance = _contextMap.get(contextClassName);
-				contextInstance.destroy();
-			} catch (Throwable e) {
-				logger.error("Error occurred in destroying", e);
+		if(_serviceContextConfig != null && _serviceContextConfig.getContexts() != null) {
+			int size = _serviceContextConfig.getContexts().size();
+			for(int i = size - 1; i >= 0; i--) {
+				ContextSetting contextSetting = _serviceContextConfig.getContexts().get(i);
+				String contextClassName = contextSetting.getContextClass().trim();
+				
+				try {
+					CommonContext contextInstance = _contextMap.get(contextClassName);
+					contextInstance.destroy();
+				} catch (Throwable e) {
+					logger.error("Error occurred in destroying", e);
+				}
 			}
 		}
-
 		
 		_contextMap.clear();
 	}

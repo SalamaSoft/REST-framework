@@ -1,15 +1,7 @@
 package com.salama.util;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 
 public final class StringUtil {
 	private StringUtil() {
@@ -49,8 +41,6 @@ public final class StringUtil {
 				argIndex = Integer.parseInt(sb.substring(beginIndex + 1, endIndex));
 				
 				sb.replace(beginIndex, endIndex + 1, listArgs.get(argIndex));
-				
-				System.out.println(sb.toString());
 				
 				index = beginIndex + listArgs.get(argIndex).length();
 			}
