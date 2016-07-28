@@ -38,7 +38,7 @@ public class ServiceContext implements CommonContext {
 
 	@Override
 	public void reload(ServletContext servletContext, String configLocation) {
-		destroy();
+		_contextMap.clear();
 
 		String configFilePath = servletContext.getRealPath(configLocation);
 
@@ -52,8 +52,6 @@ public class ServiceContext implements CommonContext {
 			logger.error("reload()", e);
 			throw new RuntimeException(e);
 		}
-
-		destroy();
 		
 		ContextSetting contextSetting = null;
 		Class<?> contextClass = null;
