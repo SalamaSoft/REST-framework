@@ -30,9 +30,6 @@ import MetoXML.AbstractReflectInfoCachedSerializer;
 public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 	private static Logger logger = Logger.getLogger(SimpleJSONDataUtil.class);
 
-	private static SimpleDateFormat JavaUtilDateFormatForParse = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-	private static SimpleDateFormat JavaSqlTimeStampFormatForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	private static SimpleDateFormat JavaSqlDateFormatForParse = new SimpleDateFormat("yyyy-MM-dd");
 	
 	public static JSONObject convertObjectToJSONObject(Object obj) {
 		return new JSONObject(obj);
@@ -139,7 +136,11 @@ public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
 	}
 	
     public static Object Convert(Class<?> type, String valueStr) throws IllegalAccessException, ParseException, IntrospectionException, InstantiationException, JSONException, InvocationTargetException {
-		Class<?> cls = (Class<?>) type;
+    	SimpleDateFormat JavaUtilDateFormatForParse = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+    	SimpleDateFormat JavaSqlTimeStampFormatForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    	SimpleDateFormat JavaSqlDateFormatForParse = new SimpleDateFormat("yyyy-MM-dd");
+
+    	Class<?> cls = (Class<?>) type;
 		if(cls == String.class) {
 			return valueStr;
 		} else if(cls == boolean.class) {
