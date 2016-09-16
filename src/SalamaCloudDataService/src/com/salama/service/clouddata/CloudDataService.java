@@ -54,6 +54,10 @@ import com.salama.service.core.net.http.MultipartRequestWrapper;
 public final class CloudDataService implements ICloudDataService {
 	private static Logger logger = Logger.getLogger(CloudDataService.class);
 	
+	static {
+		System.out.println("VERSION:1.9.0(20160914)");
+	}
+	
 	public static final String DefaultEncoding = "utf-8";
 	public static final Charset DefaultCharset = Charset.forName(DefaultEncoding);
 	public static final String DefaultContentTypeCharset = ";charset=utf-8";
@@ -62,6 +66,8 @@ public final class CloudDataService implements ICloudDataService {
 			"<Error><type>MethodAccessNoAuthorityException</type></Error>";
 	private static final String ReturnValue_Json_MethodAccessNoAuthority = 
 			"{\"type\":\"MethodAccessNoAuthorityException\"}";
+	
+	private static final String ClassName_DefaultSupportService = DefaultSupportService.class.getName();
 	
 	//public static final String HTTP_HEAD_NAME_WEB_CLIENT_SERVICE = "webclientservice_callback";
 
@@ -92,6 +98,20 @@ public final class CloudDataService implements ICloudDataService {
 			
 			AppContext appContext = _serviceClassContextMap.get(serviceType);
 			
+			//verify accessible of serviceType
+			if(appContext == null) {
+				if(serviceType.equals(ClassName_DefaultSupportService)) {
+					//in DefaultSupport
+				} else {
+					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+				}
+			} else {
+				if(!((CloudDataAppContext)appContext).isPackageExposed(serviceType)) {
+					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+				}
+			}
+			
+			
 			Class<?> serviceTypeClass = getServiceType(serviceType);
 			Method method = findMethod(serviceTypeClass, serviceMethod);
 
@@ -119,6 +139,7 @@ public final class CloudDataService implements ICloudDataService {
 	}
 	
 	private Class<?> getServiceType(String className) throws ClassNotFoundException {
+		//get class of serviceType
 		if(className.indexOf('.') < 0) {
 			char firstChar = className.charAt(0);
 			if(firstChar >= 'a' && firstChar <= 'z') {
@@ -227,14 +248,17 @@ public final class CloudDataService implements ICloudDataService {
 			//appServiceFilter
 			boolean isNeedDoAppServiceFilter = false;
 			if(appContext != null && CloudDataAppContext.class.isAssignableFrom(appContext.getClass())) {
+				/* moved to the position before getServiceType()
 				if(!((CloudDataAppContext)appContext).isPackageExposed(serviceType)) {
 					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
 				}
+				*/
 
 				if(((CloudDataAppContext)appContext).getAppServiceFilter() != null) {
 					isNeedDoAppServiceFilter = true;
 				}
 			} else {
+				/* moved to the position before getServiceType()
 				//check whether the serviceType is enabled to be exposed
 				if(serviceTypeClass.getPackage().getName().equals(
 						DefaultSupportService.class.getPackage().getName())) {
@@ -242,6 +266,7 @@ public final class CloudDataService implements ICloudDataService {
 				} else {
 					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
 				}
+				*/
 			}
 			
 			if(isStandardServiceMethd) {
