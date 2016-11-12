@@ -53,6 +53,12 @@ public class ServiceContext implements CommonContext {
 			throw new RuntimeException(e);
 		}
 		
+		//save into attribute
+		if(getContext(servletContext) == null) {
+			setContext(servletContext, this);
+		}
+		
+		//initialize contexts --------
 		ContextSetting contextSetting = null;
 		Class<?> contextClass = null;
 		String contextConfigLocation = null;
@@ -76,10 +82,6 @@ public class ServiceContext implements CommonContext {
 			} catch (Exception e) {
 				logger.error("reload()", e);
 			} 
-		}
-		
-		if(getContext(servletContext) == null) {
-			setContext(servletContext, this);
 		}
 	}
 	
