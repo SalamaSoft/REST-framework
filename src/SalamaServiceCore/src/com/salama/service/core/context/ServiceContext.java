@@ -27,7 +27,7 @@ public class ServiceContext implements CommonContext {
 	private static final Logger logger = Logger
 			.getLogger(ServiceContext.class);
 	
-	private final static String VERSION = "20160505";
+	private final static String VERSION = "20161116";
 	static {
 		logger.info("SalamaServiceCore VERSION:" + VERSION);
 	}
@@ -72,7 +72,8 @@ public class ServiceContext implements CommonContext {
 				contextConfigLocation = contextSetting.getConfigLocation().trim();
 				contextClassName = contextSetting.getContextClass().trim();
 				
-				if(contextConfigLocation.length() != 0) {
+				//if(contextConfigLocation.length() != 0) 
+				{
 					contextClass = ClassLoaderUtil.getDefaultClassLoader().loadClass(contextClassName);
 					contextInstance = (CommonContext)contextClass.newInstance();
 					contextInstance.reload(servletContext, contextConfigLocation);

@@ -55,7 +55,7 @@ public final class CloudDataService implements ICloudDataService {
 	private static Logger logger = Logger.getLogger(CloudDataService.class);
 	
 	static {
-		System.out.println("VERSION:1.9.0(20160914)");
+		logger.info("VERSION:1.9.0(20160914)");
 	}
 	
 	public static final String DefaultEncoding = "utf-8";
