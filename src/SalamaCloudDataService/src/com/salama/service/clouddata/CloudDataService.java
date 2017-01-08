@@ -28,6 +28,7 @@ import com.salama.reflect.MethodInvokeUtil;
 import com.salama.reflect.PreScanClassFinder;
 import com.salama.service.clouddata.core.AppContext;
 import com.salama.service.clouddata.core.AppException;
+import com.salama.service.clouddata.core.AppServiceFilter;
 import com.salama.service.clouddata.core.AppServiceFilter.ServiceFilterResult;
 import com.salama.service.clouddata.core.ICloudDataService;
 import com.salama.service.clouddata.core.annotation.ClientService;
@@ -55,7 +56,7 @@ public final class CloudDataService implements ICloudDataService {
 	private static Logger logger = Logger.getLogger(CloudDataService.class);
 	
 	static {
-		logger.info("VERSION:1.9.0(20160914)");
+		logger.info("VERSION:1.9.2(20170108)");
 	}
 	
 	public static final String DefaultEncoding = "utf-8";
@@ -68,6 +69,7 @@ public final class CloudDataService implements ICloudDataService {
 			"{\"type\":\"MethodAccessNoAuthorityException\"}";
 	
 	private static final String ClassName_DefaultSupportService = DefaultSupportService.class.getName();
+	private static final String PackageName_ThisClass = CloudDataService.class.getPackage().getName();
 	
 	//public static final String HTTP_HEAD_NAME_WEB_CLIENT_SERVICE = "webclientservice_callback";
 
@@ -76,11 +78,17 @@ public final class CloudDataService implements ICloudDataService {
 	private PreScanClassFinder _allAppClassFinder = null;
 	
 	//key:serviceClassName value:AppContext
-	private HashMap<String, AppContext> _serviceClassContextMap = null;
+	private final HashMap<String, AppContext> _serviceClassContextMap;
+	private final String[] _allAppExposedPackages;
 	
-	public CloudDataService(PreScanClassFinder allAppClassFinder, HashMap<String, AppContext> serviceClassContextMap) {
+	public CloudDataService(
+			PreScanClassFinder allAppClassFinder, 
+			HashMap<String, AppContext> serviceClassContextMap,
+			String[] allAppExposedPackages
+			) {
 		_allAppClassFinder = allAppClassFinder;
 		_serviceClassContextMap = serviceClassContextMap;
+		_allAppExposedPackages = allAppExposedPackages;
 	}
 	
 	@Override
@@ -103,7 +111,24 @@ public final class CloudDataService implements ICloudDataService {
 				if(serviceType.equals(ClassName_DefaultSupportService)) {
 					//in DefaultSupport
 				} else {
-					throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+					String exposedPackage = isTypeInPackageExposed(serviceType);
+					if(exposedPackage == null) {
+						throw new RuntimeException("Service(" + serviceType + ") is not under exposed packge, then not allowed to invoke");
+					} else {
+						appContext = _serviceClassContextMap.get(exposedPackage);
+						
+						//could be override by filter 
+						AppServiceFilter serviceFilter = ((CloudDataAppContext)appContext).getAppServiceFilter(); 
+						if(serviceFilter != null) {
+							ServiceFilterResult serviceFilterResult = serviceFilter.filter(
+									request, response, true, null, null, null);
+							if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
+								return (String) serviceFilterResult.serviceReturnValue;
+							}
+						}
+						
+						return null;
+					}
 				}
 			} else {
 				if(!((CloudDataAppContext)appContext).isPackageExposed(serviceType)) {
@@ -115,6 +140,18 @@ public final class CloudDataService implements ICloudDataService {
 			Class<?> serviceTypeClass = getServiceType(serviceType);
 			Method method = findMethod(serviceTypeClass, serviceMethod);
 
+			//could be override by filter
+			if(serviceTypeClass == null || method == null) {
+				AppServiceFilter serviceFilter = ((CloudDataAppContext)appContext).getAppServiceFilter(); 
+				if(serviceFilter != null) {
+					ServiceFilterResult serviceFilterResult = serviceFilter.filter(
+							request, response, true, null, null, null);
+					if(serviceFilterResult != null && serviceFilterResult.isServiceOverrided) {
+						return (String) serviceFilterResult.serviceReturnValue;
+					}
+				}
+			}
+			
 			//check the authority of accessible
 			try {
 				boolean isAccessible = checkServiceAccessAuthority(method, request, appContext);
@@ -136,6 +173,27 @@ public final class CloudDataService implements ICloudDataService {
 			logger.error("dataService()", e);
 			return null;
 		} 
+	}
+	
+	/**
+	 * 
+	 * @param packageName
+	 * @return the matched exposed package.
+	 */
+	private String isTypeInPackageExposed(String packageName) {
+		if(_allAppExposedPackages.length == 1) {
+			if(packageName.startsWith(_allAppExposedPackages[0])) {
+				return _allAppExposedPackages[0];
+			}
+		} else {
+			for(String exposedPkgName : _allAppExposedPackages) {
+				if(packageName.startsWith(exposedPkgName)) {
+					return exposedPkgName;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	private Class<?> getServiceType(String className) throws ClassNotFoundException {

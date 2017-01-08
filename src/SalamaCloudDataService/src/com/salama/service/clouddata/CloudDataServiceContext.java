@@ -6,8 +6,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javassist.ClassClassPath;
 import javassist.ClassPath;
@@ -55,6 +57,7 @@ public class CloudDataServiceContext implements ICloudDataServiceContext {
 	
 	//key:serviceClassName value:AppContext
 	private HashMap<String, AppContext> _serviceClassContextMap = new HashMap<String, AppContext>();
+	private String[] _allAppExposedPackages = null;
 	
 	//key:appId Value:AppContext
 	private HashMap<String, AppContext> _appIdContextMap = new HashMap<String, AppContext>();
@@ -167,6 +170,21 @@ public class CloudDataServiceContext implements ICloudDataServiceContext {
 				
 				//rebuild context map
 				_appIdContextMap.put(appConfig.getAppId(), appContext);
+				
+				//build maps that exposed package -> appContext
+				String[] exposedPackageNames = appConfig.getExposedPackage().split(",");
+				Set<String> allAppExposedPackageSet = new HashSet<String>();
+				for(String pkgName : exposedPackageNames) {
+					String trimedPkgName = pkgName.trim();
+					
+					if(trimedPkgName.length() != 0) {
+						_serviceClassContextMap.put(trimedPkgName, appContext);
+						allAppExposedPackageSet.add(trimedPkgName);
+					}
+				}
+				_allAppExposedPackages = allAppExposedPackageSet.toArray(new String[0]);
+				
+				//build maps that class name(under base package) -> appContext
 				classFullNameIterator = _appClassFinderTemp.getClassFullNameMap().keySet().iterator();
 				while(classFullNameIterator.hasNext()) {
 					classFullName = classFullNameIterator.next();
@@ -238,7 +256,11 @@ public class CloudDataServiceContext implements ICloudDataServiceContext {
 
 	@Override
 	public ICloudDataService createCloudDataService() {
-		CloudDataService cloudDataService = new CloudDataService(_allAppClassFinder, _serviceClassContextMap);
+		CloudDataService cloudDataService = new CloudDataService(
+				_allAppClassFinder, 
+				_serviceClassContextMap,
+				_allAppExposedPackages
+				);
 		
 		return cloudDataService;
 	}
