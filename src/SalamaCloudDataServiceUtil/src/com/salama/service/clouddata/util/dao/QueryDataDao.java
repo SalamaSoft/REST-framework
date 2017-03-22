@@ -5,6 +5,7 @@ import java.beans.PropertyDescriptor;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -19,6 +20,7 @@ import org.json.JSONWriter;
 import CollectionCommon.ITreeNode;
 import MetoXML.AbstractReflectInfoCachedSerializer;
 
+import com.salama.service.clouddata.util.SqlParamValidator;
 import com.salama.service.clouddata.util.XmlDataUtil;
 
 /**
@@ -45,6 +47,68 @@ public final class QueryDataDao extends AbstractReflectInfoCachedSerializer {
 		}
 	}
 	*/
+	
+	public static <DataType> DataType findDataByPK(
+			Connection conn, 
+			Class<DataType> dataType, 
+			final Object data, 
+			String[] primaryKeys
+			) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException, IntrospectionException, InstantiationException {
+		return findDataByPK(conn, dataType.getSimpleName(), dataType, data, primaryKeys);
+	}
+	
+	public static <DataType> DataType findDataByPK(
+			Connection conn, 
+			String tableName, Class<DataType> dataType, 
+			final Object data, 
+			String[] primaryKeys
+			) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException, IntrospectionException, InstantiationException {
+		String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+		
+		Class<?> dataClass = data.getClass();
+		
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT * FROM ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName))
+		.append(" WHERE ");
+		for(int index = 0; index < primaryKeys.length; index++) {
+			if(index > 0) {
+				sql.append(" AND ");
+			}
+			sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
+		}
+		
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = conn.prepareStatement(sql.toString());
+			for(int i = 0; i < primaryKeys.length; i++) {
+				PropertyDescriptor property = findPropertyDescriptor(primaryKeys[i], dataClass);
+				Object propVal = property.getReadMethod().invoke(data, (Object[])null);
+				
+				pstmt.setObject(i + 1, propVal);
+			}
+			
+			ResultSet rs = pstmt.executeQuery();
+			if(rs.next()) {
+				DataType newData = dataType.newInstance();
+				
+				ResultSetMetaData rsMeta = rs.getMetaData();
+				int colCount = rsMeta.getColumnCount();
+				
+				for(int i = 0; i < colCount; i++) {
+					String colName = rsMeta.getColumnLabel(i + 1);
+					
+					PropertyDescriptor property = findPropertyDescriptor(colName, dataType);
+					setDataValFromResultSet(newData, property, rs);
+				}
+				
+				return newData;
+			} else {
+				return null;
+			}
+		} finally {
+			pstmt.close();
+		}
+	}
 	
 	public static <DataType> List<DataType> findData(PreparedStatement stmt, Class<DataType> dataType) 
 	throws SQLException, InstantiationException, InvocationTargetException, IllegalAccessException {
