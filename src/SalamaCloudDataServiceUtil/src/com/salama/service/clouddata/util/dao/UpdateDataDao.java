@@ -42,6 +42,10 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 	}
 	
 	public static int updateData(Connection conn, String tableName, Object data, String[] primaryKeys, String extraConstraintsSql) throws SQLException {
+		return updateData(conn, tableName, data, data.getClass(), primaryKeys, extraConstraintsSql);
+	}
+	
+	public static int updateData(Connection conn, String tableName, Object data, Class<?> dataClass, String[] primaryKeys, String extraConstraintsSql) throws SQLException {
 		if(data == null) {
 			return 0;
 		} else {
@@ -58,8 +62,6 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 					}
 				}
 				*/
-				
-				Class<?> dataClass = data.getClass();
 				
 				StringBuilder sql = new StringBuilder();
 				
@@ -318,8 +320,12 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		String tableName = data.getClass().getSimpleName();
 		return insertData(conn, tableName, data);
 	}
-
+	
 	public static int insertData(Connection conn, String tableName, Object data) throws SQLException {
+		return insertData(conn, tableName, data, data.getClass());
+	}
+
+	public static int insertData(Connection conn, String tableName, Object data, Class<?> dataClass) throws SQLException {
 		if(data == null) {
 			return 0;
 		} else {
@@ -328,8 +334,6 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			PreparedStatement pstmt = null;
 
 			try {
-				Class<?> dataClass = data.getClass();
-
 				//PropertyDescriptor[] properties = Introspector.getBeanInfo(dataClass).getPropertyDescriptors();
 				//List<PropertyDescriptor> listPropDesc = getPropertyDescriptorList(dataClass);
 				PropertyDescriptor[] listPropDesc = findPropertyDescriptorArray(dataClass);
