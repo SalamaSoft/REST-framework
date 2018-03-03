@@ -29,6 +29,8 @@
     <modules>
         <module>SalamaUtil</module>
         <module>SalamaServiceCore</module>
+        <module>SalamaHttpUtil</module>
+        <module>SalamaReflect</module>
     </modules>
 
     <build>
