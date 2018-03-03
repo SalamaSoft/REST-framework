@@ -31,6 +31,14 @@
         <module>SalamaServiceCore</module>
         <module>SalamaHttpUtil</module>
         <module>SalamaReflect</module>
+        <module>SalamaServiceAuth</module>
+        <module>SalamaInvokeService</module>
+
+        <module>SalamaCloudDataServiceUtil</module>
+        <module>SalamaCloudDataServiceCore</module>
+        <module>SalamaCloudDataService</module>
+
+        <module>SalamaServerServlet</module>
     </modules>
 
     <build>
