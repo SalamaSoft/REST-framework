@@ -28,6 +28,7 @@
 
     <modules>
         <module>SalamaUtil</module>
+        <module>SalamaServiceCore</module>
     </modules>
 
     <build>
