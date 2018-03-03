@@ -1,0 +1,10 @@
+#import "${dataName}.h"
+
+@implementation ${dataName}
+
+#foreach( $property in $propertyList)
+@synthesize ${property.name};
+
+#end
+
+@end
