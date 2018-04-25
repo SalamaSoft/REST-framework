@@ -39,12 +39,27 @@ public class JavaAssistUtil {
 	}
 
 	public static String getParameterName(LocalVariableAttribute localVarAttr, int parameterIndex, boolean isStaticMethod) {
+	    /* bugs in old code
 		if(isStaticMethod) {
 			return localVarAttr.variableName(parameterIndex);
 		} else {
 			return localVarAttr.variableName(parameterIndex + 1);
 		}
-	}
+		*/
+
+        int targetIndex = isStaticMethod? parameterIndex : (parameterIndex + 1);
+
+        int tableLen = localVarAttr.tableLength();
+        for(int i = 0; i < tableLen; i++) {
+            int index = localVarAttr.index(i);
+            if(index == targetIndex) {
+                final String varName = localVarAttr.variableName(i);
+                return varName;
+            }
+        }
+
+        return null;
+    }
 	
 	public static String[] getParameterNames(String className, String methodName) throws NotFoundException {
 		ClassPool clsPool = ClassPool.getDefault();

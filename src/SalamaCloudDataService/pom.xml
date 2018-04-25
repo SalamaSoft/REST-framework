@@ -12,7 +12,7 @@
 
     <groupId>com.salama</groupId>
     <artifactId>SalamaCloudDataService</artifactId>
-    <version>1.9.2</version>
+    <version>1.9.3</version>
 
     <dependencies>
         <dependency>
@@ -34,6 +34,13 @@
             <artifactId>javassist</artifactId>
             <version>3.22.0-GA</version>
         </dependency>
+<!--
+        <dependency>
+            <groupId>javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.12.1.GA</version>
+        </dependency>
+-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -76,4 +83,5 @@
             <version>1.9.0</version>
         </dependency>
     </dependencies>
+
 </project>
