@@ -42,6 +42,7 @@ public class TestJavaAssist {
     }
 
 
+    /*
     protected static void testJavasist(Class<?> cls, String methodName) {
         try {
             LocalVariableAttribute localVarAttr = JavaAssistUtil.getLocalVariableAttribute(
@@ -61,6 +62,29 @@ public class TestJavaAssist {
                 String paramName = JavaAssistUtil.getParameterName(localVarAttr, i, isStaticMethod);
                 System.out.println("paramName[" + paramName + "]:" + paramName);
             }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+    */
+
+    protected static void testJavasist(Class<?> cls, String methodName) {
+        try {
+            Method method = findMethod(cls, methodName);
+            Object[] paramTypes = method.getParameterTypes();
+            int paramCnt = paramTypes.length;
+
+            String[] paramNames = JavaAssistUtil.getParameterNames(
+                    cls.getName(), methodName,
+                    MethodInvokeUtil.IsMethodStatic(method),
+                    paramCnt
+            );
+            System.out.println("class:" + cls.getName() + " method:" + methodName);
+            for(int i = 0; i < paramCnt; i++) {
+                String paramName = paramNames[i];
+                System.out.println("paramName[" + paramName + "]:" + paramName);
+            }
+            System.out.println("----------------");
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -94,6 +118,7 @@ public class TestJavaAssist {
             int codeLen = localVarAttr.codeLength(i);
             int startPc = localVarAttr.startPc(i);
             int index = localVarAttr.index(i);
+            int nameIndex = localVarAttr.nameIndex(i);
             String signature = localVarAttr.signature(i);
             String desc = localVarAttr.descriptor(i);
 
@@ -102,6 +127,7 @@ public class TestJavaAssist {
                     + " codeLen:" + codeLen
                     + " startPc:" + startPc
                     + " index:" + index
+                    + " nameIndex:" + nameIndex
                     + " signature:" + signature
                     + " desc:" + desc
             );

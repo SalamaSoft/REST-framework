@@ -344,13 +344,17 @@ public final class CloudDataService implements ICloudDataService {
 				Object[] paramValues = null;
 				if(clientService == null) {
 					//parameter value is achieved from request parameter
-					if(paramTypes.length > 0) {
-						paramValues = new Object[paramTypes.length];
+                    final int paramCount = paramTypes.length;
+					if(paramCount > 0) {
+						paramValues = new Object[paramCount];
 
+						/*
 						LocalVariableAttribute localVarAttr = JavaAssistUtil.getLocalVariableAttribute(serviceType, serviceMethod);
 						if(localVarAttr == null) {
 							throw new RuntimeException("getLocalVariableAttribute() failed. ServiceType:" + serviceType + " serviceMethod:" + serviceMethod);
 						}
+						*/
+						String[] paramNames = JavaAssistUtil.getParameterNames(serviceType, serviceMethod, isStaticMethod, paramCount);
 
 						/* no need to decode URI parameter, because the web server has decoded it.
 						boolean isParamNeedDecode = isParamNeedDecode(request, returnValueConverter);
@@ -360,13 +364,12 @@ public final class CloudDataService implements ICloudDataService {
 						}
 						*/
 						
-						Class<?> paramType = null;
-						String paramName = null;
-						for(int i = 0; i < paramTypes.length; i++) {
-							paramType = paramTypes[i];
-							paramName = JavaAssistUtil.getParameterName(localVarAttr, i, isStaticMethod);
-							
-							if(paramType == (String.class)) {
+						for(int i = 0; i < paramCount; i++) {
+                            final Class<?> paramType = paramTypes[i];
+							//paramName = JavaAssistUtil.getParameterName(localVarAttr, i, isStaticMethod);
+                            final String paramName = paramNames[i];
+
+                            if(paramType == (String.class)) {
 								/* no need to decode URI parameter, because the web server has decoded it.
 								if(isParamNeedDecode) {
 									paramValues[i] = getDecodedRequestParam(request, paramName, requestEncoding);

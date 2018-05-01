@@ -9,12 +9,47 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
+import java.util.List;
+
 /**
  * 
  * @author XingGu Liu
  *
  */
 public class JavaAssistUtil {
+
+    public static String[] getParameterNames(String className, String methodName, boolean isStaticMethod, int paramCount) throws NotFoundException {
+        LocalVariableAttribute localVarAttr = getLocalVariableAttribute(className, methodName);
+
+        String[] paramNames = new String[paramCount];
+        int paramIndex = 0;
+
+        int tableLen = localVarAttr.tableLength();
+        for(int i = 0; i < tableLen; i++) {
+            int startPc = localVarAttr.startPc(i);
+            if(startPc == 0) {
+                String varName = localVarAttr.variableName(i);
+                if(isStaticMethod) {
+                    paramNames[paramIndex++] = varName;
+                    if(paramIndex >= paramCount) {
+                        break;
+                    }
+                } else {
+                    //skip the 1st param 'this'
+                    if(paramIndex > 0) {
+                        paramNames[paramIndex - 1] = varName;
+                    }
+                    paramIndex++;
+                    if(paramIndex > paramCount) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return paramNames;
+    }
+
 	public static LocalVariableAttribute getLocalVariableAttribute(String className, String methodName) throws NotFoundException {
 		ClassPool clsPool = ClassPool.getDefault();
 		
@@ -38,15 +73,8 @@ public class JavaAssistUtil {
 		return localVarAttr;
 	}
 
+	/* incorrect in some cases
 	public static String getParameterName(LocalVariableAttribute localVarAttr, int parameterIndex, boolean isStaticMethod) {
-	    /* bugs in old code
-		if(isStaticMethod) {
-			return localVarAttr.variableName(parameterIndex);
-		} else {
-			return localVarAttr.variableName(parameterIndex + 1);
-		}
-		*/
-
         int targetIndex = isStaticMethod? parameterIndex : (parameterIndex + 1);
 
         int tableLen = localVarAttr.tableLength();
@@ -60,7 +88,9 @@ public class JavaAssistUtil {
 
         return null;
     }
-	
+	*/
+
+	/* unused
 	public static String[] getParameterNames(String className, String methodName) throws NotFoundException {
 		ClassPool clsPool = ClassPool.getDefault();
 		
@@ -97,4 +127,6 @@ public class JavaAssistUtil {
 		
 		return paramNames;
 	}
+	*/
+
 }
