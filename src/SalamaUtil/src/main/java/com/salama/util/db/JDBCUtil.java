@@ -3,6 +3,7 @@ package com.salama.util.db;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Array;
@@ -16,23 +17,50 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import MetoXML.Util.ITreeNode;
 import org.apache.log4j.Logger;
 
 import MetoXML.AbstractReflectInfoCachedSerializer;
 
-public final class JDBCUtil extends AbstractReflectInfoCachedSerializer {
+public final class JDBCUtil {
 	private static final Logger logger = Logger.getLogger(JDBCUtil.class);
-	
-	public static Object ResultSetToData(
+
+	private static class ClassProperty {
+	    private Class<?> _type;
+	    private Method _readMethod;
+	    private Method _writeMethod;
+    }
+
+    //key: {class.getName()}.{propertyName}
+	private final static ConcurrentHashMap<String, ClassProperty> _classPropertyMap = new ConcurrentHashMap<String, ClassProperty>();
+
+    private static ClassProperty findPropertyDescriptor(String propertyName, Class<?> dataClass) throws IntrospectionException {
+        String propertyKey = dataClass.getName().concat(".").concat(propertyName);
+        ClassProperty property = _classPropertyMap.get(propertyKey);
+        if(property != null) {
+            return property;
+        }
+
+        property = new ClassProperty();
+        PropertyDescriptor desc = new PropertyDescriptor(propertyName, dataClass);
+        property._type = desc.getPropertyType();
+        property._readMethod = desc.getReadMethod();
+        property._writeMethod = desc.getWriteMethod();
+
+        _classPropertyMap.put(propertyKey, property);
+
+        return property;
+    }
+
+    public static Object ResultSetToData(
 			ResultSet rs, Class<?> dataClass, 
 			boolean isIgnorePropertiesNotExist) 
 			throws IntrospectionException, IllegalAccessException, InstantiationException, InvocationTargetException, SQLException {
 		return ResultSetToData(rs, dataClass, isIgnorePropertiesNotExist, true);
 	}
-	
-	
+
 	public static Object ResultSetToData(
 			ResultSet rs, Class<?> dataClass, 
 			boolean isIgnorePropertiesNotExist, boolean isTrimStr) 
@@ -41,53 +69,51 @@ public final class JDBCUtil extends AbstractReflectInfoCachedSerializer {
 
 		ResultSetMetaData rsMeta = rs.getMetaData();
 		int colCount = rsMeta.getColumnCount();
-		String colName = "";
-		
-		PropertyDescriptor prop = null;
-
 		for(int i = 1; i <= colCount; i++) {
 			//colType = rsMeta.getColumnType(i);
-			colName = rsMeta.getColumnLabel(i);
+			String colName = rsMeta.getColumnLabel(i);
 
 			//logger.debug("ResultSetToData() colName:" + colName);
 			
 			try {
 				//prop = new PropertyDescriptor(colName, dataClass);
-				prop = findPropertyDescriptor(colName, dataClass);
+                ClassProperty prop = findPropertyDescriptor(colName, dataClass);
 				//logger.debug("ResultSetToData() prop:" + prop);
+                Method writeMethod = prop._writeMethod;
+                Class<?> propertyType = prop._type;
 
-				if(prop.getWriteMethod() != null) {
+				if(writeMethod != null) {
 					if(isTrimStr && rs.getObject(i) != null && rs.getObject(i).getClass() == String.class) {
-						prop.getWriteMethod().invoke(data, rs.getString(i).trim());
-					} else if(prop.getPropertyType() == long.class) {
-						prop.getWriteMethod().invoke(data, rs.getLong(i));
-					} else if(prop.getPropertyType() == int.class) {
-						prop.getWriteMethod().invoke(data, rs.getInt(i));
-					} else if(prop.getPropertyType() == short.class) {
-						prop.getWriteMethod().invoke(data, rs.getShort(i));
-					} else if(prop.getPropertyType() == double.class) {
-						prop.getWriteMethod().invoke(data, rs.getDouble(i));
-					} else if(prop.getPropertyType() == float.class) {
-						prop.getWriteMethod().invoke(data, rs.getFloat(i));
-					} else if(prop.getPropertyType() == Long.class) {
-						prop.getWriteMethod().invoke(data, rs.getLong(i));
-					} else if(prop.getPropertyType() == Integer.class) {
-						prop.getWriteMethod().invoke(data, rs.getInt(i));
-					} else if(prop.getPropertyType() == Short.class) {
-						prop.getWriteMethod().invoke(data, rs.getShort(i));
-					} else if(prop.getPropertyType() == Double.class) {
-						prop.getWriteMethod().invoke(data, rs.getDouble(i));
-					} else if(prop.getPropertyType() == Float.class) {
-						prop.getWriteMethod().invoke(data, rs.getFloat(i));
+                        writeMethod.invoke(data, rs.getString(i).trim());
+					} else if(propertyType == long.class) {
+                        writeMethod.invoke(data, rs.getLong(i));
+					} else if(propertyType == int.class) {
+                        writeMethod.invoke(data, rs.getInt(i));
+					} else if(propertyType == short.class) {
+                        writeMethod.invoke(data, rs.getShort(i));
+					} else if(propertyType == double.class) {
+                        writeMethod.invoke(data, rs.getDouble(i));
+					} else if(propertyType == float.class) {
+                        writeMethod.invoke(data, rs.getFloat(i));
+					} else if(propertyType == Long.class) {
+                        writeMethod.invoke(data, rs.getLong(i));
+					} else if(propertyType == Integer.class) {
+                        writeMethod.invoke(data, rs.getInt(i));
+					} else if(propertyType == Short.class) {
+                        writeMethod.invoke(data, rs.getShort(i));
+					} else if(propertyType == Double.class) {
+                        writeMethod.invoke(data, rs.getDouble(i));
+					} else if(propertyType == Float.class) {
+                        writeMethod.invoke(data, rs.getFloat(i));
 					} else {
-						if(String.class == prop.getPropertyType()) {
+						if(String.class == propertyType) {
 							if(rs.getObject(i) != null) {
-								prop.getWriteMethod().invoke(data, rs.getString(i).trim());
+                                writeMethod.invoke(data, rs.getString(i).trim());
 							} else {
-								prop.getWriteMethod().invoke(data, (String)null);
+                                writeMethod.invoke(data, (String)null);
 							}
 						} else {
-							prop.getWriteMethod().invoke(data, rs.getObject(i));
+                            writeMethod.invoke(data, rs.getObject(i));
 						}
 					}
 				}
@@ -169,20 +195,6 @@ public final class JDBCUtil extends AbstractReflectInfoCachedSerializer {
 			
 			index++;
 		}
-	}
-
-
-	@Override
-	protected void BackwardToNode(ITreeNode arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	protected void ForwardToNode(ITreeNode arg0, int arg1, boolean arg2) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
