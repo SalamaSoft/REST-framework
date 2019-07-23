@@ -218,7 +218,8 @@ public final class CloudDataService implements ICloudDataService {
 		try {
 			method = MethodInvokeUtil.GetMethod(serviceTypeClass,
 					serviceMethod, StandardCloudDataServiceParamTypes);
-			if((method.getModifiers() & Modifier.PUBLIC) != 0) {
+			if(!((method.getModifiers() & Modifier.PUBLIC) != 0)) {
+				logger.debug("try to access nonpublic method:" + method.getName());
 				throw new NoSuchMethodException();
 			}
 			
