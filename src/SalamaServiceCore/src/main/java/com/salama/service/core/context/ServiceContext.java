@@ -82,10 +82,10 @@ public class ServiceContext implements CommonContext {
 				}
 			} catch (Exception e) {
 				logger.error("reload()", e);
+				throw (RuntimeException.class.isAssignableFrom(e.getClass()) ? (RuntimeException)e : new RuntimeException(e));
 			} 
 		}
 	}
-	
 	public static ServiceContext getContext(ServletContext servletContext) {
 		return (ServiceContext) servletContext.getAttribute(ServiceContext.class.getName());
 	}
