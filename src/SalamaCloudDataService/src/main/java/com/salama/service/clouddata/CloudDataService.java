@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
@@ -247,7 +248,7 @@ public final class CloudDataService implements ICloudDataService {
 			ResponseWrapper response, 
 			AppContext appContext
 			) throws IntrospectionException, IllegalAccessException, InvocationTargetException, IOException, InstantiationException, NotFoundException {
-		//Invoke method ----------------------------------------------
+		final long traceId = genTraceId();
 		//create service instance if this method is not static method
 		Object service = null;
 
@@ -380,13 +381,13 @@ public final class CloudDataService implements ICloudDataService {
 								*/
 
 								paramValues[i] = request.getParameter(paramName);
-								if(logger.isDebugEnabled()) {
-									logger.debug("paramName:" + paramName + " paramValue:" + paramValues[i]);
+								if(logger.isTraceEnabled()) {
+									logger.trace("trace_" + traceId + " paramName:" + paramName + " paramValue:" + paramValues[i]);
 								}
 							} else if (paramType == (MultipartFile.class)) {
 								paramValues[i] = ((MultipartRequestWrapper)request).getFile(paramName);
-								if(logger.isDebugEnabled()) {
-									logger.debug("paramName:" + paramName + " (MultiPartFile)");
+								if(logger.isTraceEnabled()) {
+									logger.trace("trace_" + traceId + " paramName:" + paramName + " (MultiPartFile)");
 								}
 							} else if (paramType == (RequestWrapper.class)) {
 								paramValues[i] = request;
@@ -404,8 +405,8 @@ public final class CloudDataService implements ICloudDataService {
 
 								val = request.getParameter(paramName);
 								paramValues[i] = convertStringToPrimitiveType(val, paramType);
-								if(logger.isDebugEnabled()) {
-									logger.debug("paramName:" + paramName + " paramValue:" + val);
+								if(logger.isTraceEnabled()) {
+									logger.trace("trace_" + traceId + " paramName:" + paramName + " paramValue:" + val);
 								}
 							} else {
 								throw new RuntimeException("Not support the param type:" + paramType.getName());
@@ -454,13 +455,13 @@ public final class CloudDataService implements ICloudDataService {
 									*/
 
 									paramValues[i] = request.getParameter(paramName);
-									if(logger.isDebugEnabled()) {
-										logger.debug("paramName:" + paramName + " paramValue:" + paramValues[i]);
+									if(logger.isTraceEnabled()) {
+										logger.trace("trace_" + traceId + " paramName:" + paramName + " paramValue:" + paramValues[i]);
 									}
 								} else if (paramType == (MultipartFile.class)) {
 									paramValues[i] = ((MultipartRequestWrapper)request).getFile(paramName);
-									if(logger.isDebugEnabled()) {
-										logger.debug("paramName:" + paramName + " (MultiPartFile)");
+									if(logger.isTraceEnabled()) {
+										logger.trace("trace_" + traceId + " paramName:" + paramName + " (MultiPartFile)");
 									}
 								} else if (paramType.isPrimitive()) {
 									String val;
@@ -474,8 +475,8 @@ public final class CloudDataService implements ICloudDataService {
 
 									val = request.getParameter(paramName);
 									paramValues[i] = convertStringToPrimitiveType(val, paramType);
-									if(logger.isDebugEnabled()) {
-										logger.debug("paramName:" + paramName + " paramValue:" + val);
+									if(logger.isTraceEnabled()) {
+										logger.trace("trace_" + traceId + " paramName:" + paramName + " paramValue:" + val);
 									}
 								} else {
 									throw new RuntimeException("Not support the param type:" + paramType.getName());
@@ -839,5 +840,10 @@ public final class CloudDataService implements ICloudDataService {
 		
 		return authTicket;
 	}
-	
+
+	private final static AtomicLong _traceSeq = new AtomicLong(0);
+	private static long genTraceId() {
+		return (System.currentTimeMillis() << 18) | (_traceSeq.incrementAndGet() & 0x3FFFFL);
+	}
+
 }
