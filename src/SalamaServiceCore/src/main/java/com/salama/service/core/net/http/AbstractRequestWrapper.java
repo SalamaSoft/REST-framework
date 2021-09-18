@@ -3,6 +3,7 @@ package com.salama.service.core.net.http;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
@@ -18,10 +19,43 @@ import com.salama.service.core.net.SessionWrapper;
 public class AbstractRequestWrapper implements RequestWrapper {
 	protected ServletRequest _request = null;
 	protected SessionWrapper _session = null;
+	protected final long _reqId;
+
+	private final static AtomicLong _traceSeq = new AtomicLong(0);
+	private static long genTraceId() {
+		return (System.currentTimeMillis() << 18) | (_traceSeq.incrementAndGet() & 0x3FFFFL);
+	}
+
+	private final static ThreadLocal<MyThreadData> THREAD_LOCAL = new ThreadLocal<MyThreadData>() {
+		@Override
+		protected MyThreadData initialValue() {
+			return new MyThreadData();
+		}
+	};
+
+	private final static class MyThreadData {
+		private volatile long _traceId = genTraceId();
+	}
+
+	private static long updateTraceId() {
+		final long traceId = genTraceId();
+		THREAD_LOCAL.get()._traceId = traceId;
+
+		return traceId;
+	}
+
+	/**
+	 *
+	 * @return The requestId of the current thread
+	 */
+	public static long getCurrentRequestId() {
+		return THREAD_LOCAL.get()._traceId;
+	}
 
 	public AbstractRequestWrapper(ServletRequest request, SessionWrapper session) {
 		_request = request;
 		_session = session;
+		_reqId = updateTraceId();
 	}
 	
 	@Override
@@ -153,5 +187,4 @@ public class AbstractRequestWrapper implements RequestWrapper {
 	public void setCharacterEncoding(String encoding) throws UnsupportedEncodingException {
 		_request.setCharacterEncoding(encoding);
 	}
-	
 }

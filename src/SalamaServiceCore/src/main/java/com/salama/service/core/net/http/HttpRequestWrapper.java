@@ -53,18 +53,18 @@ public class HttpRequestWrapper extends AbstractRequestWrapper {
 		*/
 		
 		if(log.isDebugEnabled()) {
-			String headers = "";
+			final StringBuilder headers = new StringBuilder();
 
 			Enumeration<String> headerNames = request.getHeaderNames();
 			String headerName;
 			while(headerNames.hasMoreElements()) {
 				headerName = headerNames.nextElement();
-				headers += " " + headerName + ":" + request.getHeader(headerName);
+				headers.append(" ").append(headerName).append(":").append(request.getHeader(headerName));
 			}
 			
-			log.debug("HttpRequestWrapper() method:" + request.getMethod() + " characterEncoding:" + enc 
-					+ " contentType:" + request.getContentType()
-					+ " headers-> " + headers);
+			log.debug("HttpRequestWrapper() req_" + _reqId + " method:"
+					+ request.getMethod() + " characterEncoding:" + enc + " contentType:" + request.getContentType()
+					+ " headers-> " + headers.toString());
 		}
 	}
 	
