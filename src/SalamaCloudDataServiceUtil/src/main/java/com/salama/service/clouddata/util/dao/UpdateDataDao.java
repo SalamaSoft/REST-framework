@@ -12,7 +12,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //import com.salama.service.cloud.data.util.SqlParamValidator;
 
@@ -139,6 +141,78 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		}
 	}
 
+	public static int updateDataMap(Connection conn, String tableName, Map<String, Object> dataMap, String[] primaryKeys, String extraConstraintsSql)
+			throws SQLException {
+		final String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+
+		PreparedStatement pstmt = null;
+
+		try {
+			StringBuilder sql = new StringBuilder();
+
+			sql.append("update ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" set ");
+
+			final List<String> colNameList = new ArrayList<>();
+
+			int index, i;
+			index = 0;
+			{
+				final String[] colNames = dataMap.keySet().toArray(new String[0]);
+				for(String colName : colNames) {
+					if(!isExistInArrayIgnoreCase(colName, primaryKeys)) {
+						if(index == 0) {
+							sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append("=?");
+						} else {
+							sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append("=?");
+						}
+
+						colNameList.add(colName);
+						index++;
+					}
+				}
+			}
+
+			sql.append(" where ");
+
+			for(index = 0; index < primaryKeys.length; index++) {
+				final String colName = primaryKeys[index];
+				if(index == 0) {
+					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append(" = ? ");
+				} else {
+					sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append(" =? ");
+				}
+
+				colNameList.add(colName);
+			}
+
+			if(extraConstraintsSql != null && extraConstraintsSql.length() > 0) {
+				sql.append(" and ( ").append(extraConstraintsSql).append(" )");
+			}
+
+			pstmt = conn.prepareStatement(sql.toString());
+
+			final int colCnt = colNameList.size();
+			for(index = 1; index <= colCnt; index++) {
+				String colName = colNameList.get(index - 1);
+				Object colVal = dataMap.get(colName);
+
+				pstmt.setObject(index, colVal);
+			}
+
+			return pstmt.executeUpdate();
+		} catch(SQLException e) {
+			throw e;
+		} catch(Exception e) {
+			logger.error("updateData()", e);
+			return 0;
+		} finally {
+			try {
+				pstmt.close();
+			} catch(Exception e) {
+			}
+		}
+	}
+
 	public static int updateDataXml(Connection conn, XmlNode dataNode, String[] primaryKeys) throws SQLException {
 		String tableName = dataNode.getName();
 		
@@ -152,85 +226,15 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 	
 	public static int updateDataXml(Connection conn, String tableName, XmlNode dataNode, String[] primaryKeys, String extraConstraintsSql) 
 			throws SQLException {
-		PreparedStatement pstmt = null;
+		final Map<String, Object> dataMap = new HashMap<>();
+		XmlNode nodeTmp = dataNode.getFirstChildNode();
+		while(nodeTmp != null) {
+			dataMap.put(nodeTmp.getName(), nodeTmp.getContent());
 
-		try {
-			//valid primaryKeys
-			/*
-			for(int i = 0; i < primaryKeys.length; i++) {
-				if(!SqlParamValidator.isValidColumnName(primaryKeys[i])) {
-					throw new Exception("updateData() Invalid column name is found in primaryKeys of parameters");
-				}
-			}
-			*/
-
-			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
-			
-			StringBuilder sql = new StringBuilder();
-			sql.append("update ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" set ");
-
-			XmlNode nodeTmp;
-			int index;
-			List<XmlNode> nodeList = new ArrayList<XmlNode>();
-
-			nodeTmp = dataNode.getFirstChildNode();
-			index = 0;
-			while(nodeTmp != null) {
-				if(!isExistInArrayIgnoreCase(nodeTmp.getName(), primaryKeys)) {
-					if(index == 0) {
-						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
-					} else {
-						sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
-					}
-					
-					nodeList.add(nodeTmp);
-
-					index++;
-				} 
-				
-				nodeTmp = nodeTmp.getNextNode();
-			}
-
-			sql.append(" where ");
-			nodeTmp = dataNode.getFirstChildNode();
-			index = 0;
-			while(nodeTmp != null) {
-				if(isExistInArrayIgnoreCase(nodeTmp.getName(), primaryKeys)) {
-					if(index == 0) {
-						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
-					} else {
-						sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
-					}
-					
-					nodeList.add(nodeTmp);
-					index++;
-				}
-				
-				nodeTmp = nodeTmp.getNextNode();
-			}
-			
-			if(extraConstraintsSql != null && extraConstraintsSql.length() > 0) {
-				sql.append(" and ( ").append(extraConstraintsSql).append(" )");
-			}
-
-			pstmt = conn.prepareStatement(sql.toString());
-
-			for(index = 1; index <= nodeList.size(); index++) {
-				pstmt.setObject(index, nodeList.get(index-1).getContent());
-			}
-			
-		 	return pstmt.executeUpdate();
-		} catch(SQLException e) {
-			throw e;
-		} catch(Exception e) {
-			logger.error("updateDataXml()", e);
-			return 0;
-		} finally {
-			try {
-				pstmt.close();
-			} catch(Exception e) {
-			}
+			nodeTmp = nodeTmp.getNextNode();
 		}
+
+		return updateDataMap(conn, tableName, dataMap, primaryKeys, extraConstraintsSql);
 	}
 	
 	public static int updateDataJSON(Connection conn, String tableName, String dataJSON, String[] primaryKeys) 
@@ -240,72 +244,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 
 	public static int updateDataJSON(Connection conn, String tableName, String dataJSON, String[] primaryKeys, String extraConstraintsSql) 
 			throws SQLException {
-		PreparedStatement pstmt = null;
-
-		try {
-			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
-			
-			StringBuilder sql = new StringBuilder();
-			sql.append("update ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" set ");
-
-			int index, i;
-			List<String> jsonKeyList = new ArrayList<String>();
-			JSONObject jsonDataObject = new JSONObject(dataJSON);
-			String[] colNames = JSONObject.getNames(jsonDataObject);
-			String colName;
-
-			index = 0;
-			for(i = 0; i < colNames.length; i++) {
-				colName = colNames[i];
-				if(!isExistInArrayIgnoreCase(colName, primaryKeys)) {
-					if(index == 0) {
-						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append("=?");
-					} else {
-						sql.append(",").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append("=?");
-					}
-					
-					jsonKeyList.add(colName);
-
-					index++;
-				} 
-			}
-
-			sql.append(" where ");
-
-			for(index = 0; index < primaryKeys.length; index++) {
-				if(index == 0) {
-					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
-				} else {
-					sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" =? ");
-				}
-				
-				jsonKeyList.add(primaryKeys[index]);
-			}
-			
-			if(extraConstraintsSql != null && extraConstraintsSql.length() > 0) {
-				sql.append(" and ( ").append(extraConstraintsSql).append(" )");
-			}
-
-			pstmt = conn.prepareStatement(sql.toString());
-
-			String jsonKey;
-			for(index = 1; index <= jsonKeyList.size(); index++) {
-				jsonKey = jsonKeyList.get(index-1);
-				pstmt.setObject(index, jsonDataObject.get(jsonKey));
-			}
-			
-		 	return pstmt.executeUpdate();
-		} catch(SQLException e) {
-			throw e;
-		} catch(Exception e) {
-			logger.error("updateDataJSON()", e);
-			return 0;
-		} finally {
-			try {
-				pstmt.close();
-			} catch(Exception e) {
-			}
-		}
+		final JSONObject jsonDataObject = new JSONObject(dataJSON);
+		return updateDataMap(conn, tableName, jsonDataObject.toMap(), primaryKeys, extraConstraintsSql);
 	}
 	
 	public static int insertData(Connection conn, Object data) throws SQLException {
@@ -643,14 +583,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 		}
 	}
 
-	public static int deleteDataXml(Connection conn, String tableName, XmlNode dataNode, String[] primaryKeys) 
-			throws SQLException {
-		return deleteDataXml(conn, tableName, dataNode, primaryKeys, null);
-	}
-	
-	public static int deleteDataXml(Connection conn, String tableName, XmlNode dataNode, String[] primaryKeys, String extraConstraintsSql) 
-			throws SQLException {
-		String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
+	public static int deleteDataMap(Connection conn, String tableName, Map<String, Object> dataMap, String[] primaryKeys, String extraConstraintsSql) throws SQLException {
+		final String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
 
 		PreparedStatement pstmt = null;
 
@@ -658,42 +592,34 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			StringBuilder sql = new StringBuilder();
 			sql.append("delete from ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" where ");
 
-			XmlNode nodeTmp;
-			int index;
-			List<XmlNode> nodeList = new ArrayList<XmlNode>();
-
-			nodeTmp = dataNode.getFirstChildNode();
-			index = 0;
-			while(nodeTmp != null) {
-				if(isExistInArrayIgnoreCase(nodeTmp.getName(), primaryKeys)) {
-					if(index == 0) {
-						sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
-					} else {
-						sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, nodeTmp.getName())).append("=?");
-					}
-					
-					nodeList.add(nodeTmp);
-					index++;
+			for(int index = 0; index < primaryKeys.length; index++) {
+				final String colName = primaryKeys[index];
+				if(index == 0) {
+					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append(" = ? ");
+				} else {
+					sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, colName)).append(" =? ");
 				}
-				
-				nodeTmp = nodeTmp.getNextNode();
 			}
-			
+
 			if(extraConstraintsSql != null && extraConstraintsSql.length() > 0) {
 				sql.append(" and ( ").append(extraConstraintsSql).append(" )");
 			}
 
 			pstmt = conn.prepareStatement(sql.toString());
 
-			for(index = 1; index <= nodeList.size(); index++) {
-				pstmt.setObject(index, nodeList.get(index-1).getContent());
+			final int colCnt = primaryKeys.length;
+			for(int index = 1; index <= colCnt; index++) {
+				String colName = primaryKeys[index - 1];
+				Object colVal = dataMap.get(colName);
+
+				pstmt.setObject(index, colVal);
 			}
-			
-		 	return pstmt.executeUpdate();
+
+			return pstmt.executeUpdate();
 		} catch(SQLException e) {
 			throw e;
 		} catch(Exception e) {
-			logger.error("deleteDataXml()", e);
+			logger.error("updateData()", e);
 			return 0;
 		} finally {
 			try {
@@ -701,6 +627,23 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 			} catch(Exception e) {
 			}
 		}
+	}
+	public static int deleteDataXml(Connection conn, String tableName, XmlNode dataNode, String[] primaryKeys) 
+			throws SQLException {
+		return deleteDataXml(conn, tableName, dataNode, primaryKeys, null);
+	}
+	
+	public static int deleteDataXml(Connection conn, String tableName, XmlNode dataNode, String[] primaryKeys, String extraConstraintsSql) 
+			throws SQLException {
+		final Map<String, Object> dataMap = new HashMap<>();
+		XmlNode nodeTmp = dataNode.getFirstChildNode();
+		while(nodeTmp != null) {
+			dataMap.put(nodeTmp.getName(), nodeTmp.getContent());
+
+			nodeTmp = nodeTmp.getNextNode();
+		}
+
+		return deleteDataMap(conn, tableName, dataMap, primaryKeys, extraConstraintsSql);
 	}
 
 	public static int deleteDataJSON(Connection conn, String tableName, String dataJSON, String[] primaryKeys) 
@@ -710,50 +653,8 @@ public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
 	
 	public static int deleteDataJSON(Connection conn, String tableName, String dataJSON, String[] primaryKeys, String extraConstraintsSql) 
 			throws SQLException {
-		PreparedStatement pstmt = null;
-
-		try {
-			String identifierQuoteString = SqlParamValidator.getIdentifierQuoteString(conn);
-			
-			StringBuilder sql = new StringBuilder();
-			sql.append("delete from ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, tableName)).append(" where ");
-
-			int index;
-			JSONObject jsonDataObject = new JSONObject(dataJSON);
-			String[] colNames = JSONObject.getNames(jsonDataObject);
-
-			for(index = 0; index < primaryKeys.length; index++) {
-				if(index == 0) {
-					sql.append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
-				} else {
-					sql.append(" and ").append(SqlParamValidator.quoteSqlIdentifier(identifierQuoteString, primaryKeys[index])).append(" = ? ");
-				}
-			}
-
-			if(extraConstraintsSql != null && extraConstraintsSql.length() > 0) {
-				sql.append(" and ( ").append(extraConstraintsSql).append(" )");
-			}
-			
-			pstmt = conn.prepareStatement(sql.toString());
-
-			String jsonKey;
-			for(index = 1; index <= colNames.length; index++) {
-				jsonKey = colNames[index-1];
-				pstmt.setObject(index, jsonDataObject.get(jsonKey));
-			}
-			
-		 	return pstmt.executeUpdate();
-		} catch(SQLException e) {
-			throw e;
-		} catch(Exception e) {
-			logger.error("insertDataJSON()", e);
-			return 0;
-		} finally {
-			try {
-				pstmt.close();
-			} catch(Exception e) {
-			}
-		}
+		JSONObject jsonDataObject = new JSONObject(dataJSON);
+		return deleteDataMap(conn, tableName, jsonDataObject.toMap(), primaryKeys, extraConstraintsSql);
 	}
 	
 	protected static boolean isExistInArrayIgnoreCase(String str, String[] strArray) {
