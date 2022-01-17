@@ -6,12 +6,13 @@ import java.util.Iterator;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.XmlDeserializer;
 
 import com.salama.service.core.context.config.ContextSetting;
 import com.salama.util.ClassLoaderUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -24,8 +25,7 @@ public class ServiceContext implements CommonContext {
 	 */
 	private static final long serialVersionUID = 2575930667547968086L;
 
-	private static final Logger logger = Logger
-			.getLogger(ServiceContext.class);
+	private static final Log logger = LogFactory.getLog(ServiceContext.class);
 	
 	private final static String VERSION = "20161116";
 	static {

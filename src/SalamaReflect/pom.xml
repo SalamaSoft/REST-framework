@@ -11,13 +11,13 @@
     </parent>
 
     <artifactId>SalamaReflect</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.8</version>
 
     <dependencies>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaUtil</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
         </dependency>
     </dependencies>
 

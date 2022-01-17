@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.log4j.Logger;
 
 import com.salama.service.clouddata.CloudDataServiceContext;
 import com.salama.service.clouddata.core.ICloudDataService;
@@ -23,6 +22,8 @@ import com.salama.service.core.net.http.MultipartRequestWrapper;
 import com.salama.service.invoke.InvokeService;
 import com.salama.util.ClassLoaderUtil;
 import com.salama.util.http.upload.FileUploadSupport;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -33,7 +34,7 @@ public class HttpServlet extends javax.servlet.http.HttpServlet {
 
 	private static final long serialVersionUID = -5522241844236493287L;
 
-	private static final Logger logger = Logger.getLogger(HttpServlet.class);
+	private static final Log logger = LogFactory.getLog(HttpServlet.class);
 
 	public final static String INIT_PARAM_NAME_TRACER = "tracer";
 	

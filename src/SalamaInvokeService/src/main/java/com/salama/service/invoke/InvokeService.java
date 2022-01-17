@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import ognl.Ognl;
 import ognl.OgnlException;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.XmlDeserializer;
 import MetoXML.Base.XmlParseException;
@@ -33,6 +32,8 @@ import com.salama.service.core.net.ResponseWrapper;
 import com.salama.service.core.net.SessionWrapper;
 import com.salama.service.core.net.http.MultipartRequestWrapper;
 import com.salama.service.invoke.config.XmlResultSetting;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -40,8 +41,7 @@ import com.salama.service.invoke.config.XmlResultSetting;
  *
  */
 public final class InvokeService {
-	private static final Logger logger = Logger
-			.getLogger(InvokeService.class);
+	private static final Log logger = LogFactory.getLog(InvokeService.class);
 
 	public static final String DefaultEncoding = "utf-8";
 	

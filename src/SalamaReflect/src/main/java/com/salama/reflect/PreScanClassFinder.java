@@ -11,13 +11,14 @@ import java.util.HashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.Cast.BaseTypesMapping;
 import MetoXML.Util.ClassFinder;
 
 import com.salama.util.ClassLoaderUtil;
 import com.salama.util.io.DirectoryRecursiveVisitor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -25,7 +26,7 @@ import com.salama.util.io.DirectoryRecursiveVisitor;
  *
  */
 public class PreScanClassFinder implements ClassFinder {
-	private static final Logger logger = Logger.getLogger(PreScanClassFinder.class);
+	private static final Log logger = LogFactory.getLog(PreScanClassFinder.class);
 
 	protected HashMap<String, Class<?>> _classFullNameMap = new HashMap<String, Class<?>>();
 

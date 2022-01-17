@@ -3,7 +3,8 @@ package com.salama.util.expression;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
@@ -22,8 +23,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
  */
 public class SimpleExpressionAnalyzer {
 	/** Log */
-	private static final Logger log = Logger
-			.getLogger(SimpleExpressionAnalyzer.class);
+	private static final Log log = LogFactory.getLog(SimpleExpressionAnalyzer.class);
 
 	private static final String regexExpressionStr = "'[^']*'|[a-zA-Z]+[a-zA-Z0-9]*|[0-9]+[.{1}][0-9]+|[0-9]+|\\(|\\)|&&|\\|\\||==|!=|<=|>=|!|=|\\+|\\-|\\*|/|<|>";
 	private static final String regexLiteralStr = "'[^']*'";

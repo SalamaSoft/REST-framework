@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -22,7 +23,7 @@ import com.salama.service.core.auth.GrantedAuthority;
  *
  */
 public class UriAccessController {
-	private final static Logger logger = Logger.getLogger(UriAccessController.class);
+	private static final Log logger = LogFactory.getLog(UriAccessController.class);
 	
 	protected final static String PatternOfStar = "[^/]*";
 	

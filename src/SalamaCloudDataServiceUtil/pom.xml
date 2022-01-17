@@ -11,13 +11,13 @@
     </parent>
 
     <artifactId>SalamaCloudDataServiceUtil</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.8</version>
 
     <dependencies>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>

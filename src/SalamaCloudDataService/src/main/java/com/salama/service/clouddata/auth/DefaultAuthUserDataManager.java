@@ -19,13 +19,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.Base.XmlContentEncoder;
 
 import com.salama.service.clouddata.core.AppAuthUserDataManager;
 import com.salama.service.clouddata.core.AppException;
 import com.salama.service.clouddata.core.AuthUserInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -34,8 +35,7 @@ import com.salama.service.clouddata.core.AuthUserInfo;
  */
 public final class DefaultAuthUserDataManager implements AppAuthUserDataManager {
 
-	private final static Logger logger = Logger
-			.getLogger(DefaultAuthUserDataManager.class);
+	private static final Log logger = LogFactory.getLog(DefaultAuthUserDataManager.class);
 
 	private final static Charset DEFAULT_CHARSET = Charset.forName("utf-8");
 

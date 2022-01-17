@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>SalamaCloudDataServiceCore</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.8</version>
 
     <dependencies>
         <dependency>
@@ -21,15 +21,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
         </dependency>
 
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaServiceCore</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
         </dependency>
     </dependencies>
     

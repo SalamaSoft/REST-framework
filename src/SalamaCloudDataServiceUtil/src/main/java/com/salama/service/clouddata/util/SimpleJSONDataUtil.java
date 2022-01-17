@@ -2,7 +2,8 @@ package com.salama.service.clouddata.util;
 
 import MetoXML.AbstractReflectInfoCachedSerializer;
 import MetoXML.Util.ITreeNode;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +27,7 @@ import java.util.Locale;
  *
  */
 public class SimpleJSONDataUtil extends AbstractReflectInfoCachedSerializer {
-	private static Logger logger = Logger.getLogger(SimpleJSONDataUtil.class);
+	private static final Log logger = LogFactory.getLog(SimpleJSONDataUtil.class);
 
 	
 	public static JSONObject convertObjectToJSONObject(Object obj) {

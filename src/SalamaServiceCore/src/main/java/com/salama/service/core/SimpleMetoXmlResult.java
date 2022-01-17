@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.XmlDeserializer;
 import MetoXML.XmlReader;
@@ -15,6 +14,8 @@ import MetoXML.XmlWriter;
 import MetoXML.Base.XmlContentEncoder;
 import MetoXML.Base.XmlNode;
 import MetoXML.Base.XmlParseException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Xml format:
@@ -35,7 +36,7 @@ public class SimpleMetoXmlResult implements Serializable {
 	 */
 	private static final long serialVersionUID = -5401356051527130958L;
 
-	private static final Logger log = Logger.getLogger(SimpleMetoXmlResult.class);
+	private static final Log log = LogFactory.getLog(SimpleMetoXmlResult.class);
 	
 	public static final String ROOT_NODE_TAG_NAME = "SimpleMetoXmlResult";
 

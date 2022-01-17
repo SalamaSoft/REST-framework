@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.Util.DataClassFinder;
 
@@ -30,6 +29,8 @@ import com.salama.service.auth.base.TicketStatus;
 import com.salama.service.core.SimpleMetoXmlResult;
 import com.salama.service.core.auth.Authentication;
 import com.salama.service.core.context.ServiceContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -39,8 +40,8 @@ import com.salama.service.core.context.ServiceContext;
 public class AuthenticateFilter implements Filter {
 	public final static String PARAM_NAME_AUTH_TICKET = "Salama_Service_Auth_Ticket";
 	public final static String SESSION_KEY_ORIGINAL_URI_BEFORE_GOTO_LOGIN = "Salama_Service_Auth_Original_URI_Before_Goto_Login";
-	
-	private static final Logger logger = Logger.getLogger(AuthenticateFilter.class);
+
+	private static final Log logger = LogFactory.getLog(AuthenticateFilter.class);
 
 //	public final static String FILTER_PARAM_NAME_CONFIG_LOCATION= "config-location";
 

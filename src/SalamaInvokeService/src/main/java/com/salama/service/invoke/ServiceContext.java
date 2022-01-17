@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.XmlDeserializer;
 
@@ -17,6 +16,8 @@ import com.salama.service.invoke.config.BasePackage;
 import com.salama.service.invoke.config.XmlResultSetting;
 import com.salama.util.ClassLoaderUtil;
 import com.salama.util.http.upload.FileUploadSupport;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -29,8 +30,7 @@ public class ServiceContext implements CommonContext {
 	 */
 	private static final long serialVersionUID = 4704161998246249160L;
 
-	private static final Logger logger = Logger
-			.getLogger(ServiceContext.class);
+	private static final Log logger = LogFactory.getLog(ServiceContext.class);
 
 	protected static final String DefaultEncoding = "utf-8";
 	

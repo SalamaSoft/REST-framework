@@ -18,7 +18,8 @@ import javassist.NotFoundException;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import MetoXML.XmlDeserializer;
 import MetoXML.Cast.BaseTypesMapping;
@@ -46,7 +47,7 @@ public class CloudDataServiceContext implements ICloudDataServiceContext {
 	 */
 	private static final long serialVersionUID = 2816894473785406330L;
 
-	private static final Logger logger = Logger.getLogger(CloudDataServiceContext.class);
+	private static final Log logger = LogFactory.getLog(CloudDataServiceContext.class);
 
 	private final static String DEFAULT_TEMP_DIR = "/WEB-INF/temp";
 

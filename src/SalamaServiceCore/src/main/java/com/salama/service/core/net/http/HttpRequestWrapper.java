@@ -1,12 +1,14 @@
 package com.salama.service.core.net.http;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
 
 /**
  * 
@@ -15,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public class HttpRequestWrapper extends AbstractRequestWrapper {
 
-	private static final Logger log = Logger.getLogger(HttpRequestWrapper.class);
+	private static final Log log = LogFactory.getLog(HttpRequestWrapper.class);
 	
 	protected boolean isGetMethod = false;
 	protected boolean isGetAndUrlEncoded = false;

@@ -8,14 +8,15 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import com.salama.service.core.net.SessionWrapper;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
  * @author XingGu Liu
  */
 public class MultipartRequestWrapper extends AbstractRequestWrapper {
-	private static final Logger log = Logger.getLogger(HttpRequestWrapper.class);
+	private static final Log log = LogFactory.getLog(HttpRequestWrapper.class);
 	private Hashtable<String, String> _fieldMap = new Hashtable<String, String>();
 	private Hashtable<String, MultipartFile> _multipartFileMap = new Hashtable<String, MultipartFile>();
 

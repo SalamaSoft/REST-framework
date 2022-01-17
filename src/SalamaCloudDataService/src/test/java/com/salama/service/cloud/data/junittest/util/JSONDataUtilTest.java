@@ -7,7 +7,8 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ import com.salama.service.clouddata.util.SimpleJSONDataUtil;
  *
  */
 public class JSONDataUtilTest {
-	private final static Logger logger = Logger.getLogger(JSONDataUtilTest.class);
+	private static final Log logger = LogFactory.getLog(JSONDataUtilTest.class);
 
 	@Ignore
 	public void testURLEncode() {

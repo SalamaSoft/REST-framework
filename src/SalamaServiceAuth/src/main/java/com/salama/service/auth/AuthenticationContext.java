@@ -2,7 +2,6 @@ package com.salama.service.auth;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
 
 import MetoXML.XmlDeserializer;
 
@@ -13,6 +12,8 @@ import com.salama.service.auth.base.TicketManager;
 import com.salama.service.auth.filter.UriAccessController;
 import com.salama.service.core.context.CommonContext;
 import com.salama.util.ClassLoaderUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -25,7 +26,7 @@ public class AuthenticationContext implements CommonContext {
 	 */
 	private static final long serialVersionUID = -1255799061377030387L;
 
-	private static final Logger logger = Logger.getLogger(AuthenticationContext.class);
+	private static final Log logger = LogFactory.getLog(AuthenticationContext.class);
 	
 	private com.salama.service.auth.config.Authentication _authenticationConfig = null;
 

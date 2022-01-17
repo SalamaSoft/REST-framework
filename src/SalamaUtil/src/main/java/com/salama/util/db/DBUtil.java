@@ -13,13 +13,14 @@ import java.util.List;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
 
 import com.salama.util.JndiFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DBUtil {
 	/** Log */
-	private static final Logger log = Logger.getLogger(DBUtil.class);
+	private static final Log log = LogFactory.getLog(DBUtil.class);
 
 	private DBUtil() {
 	}

@@ -20,12 +20,13 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import MetoXML.Util.ITreeNode;
-import org.apache.log4j.Logger;
 
 import MetoXML.AbstractReflectInfoCachedSerializer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public final class JDBCUtil {
-	private static final Logger logger = Logger.getLogger(JDBCUtil.class);
+	private static final Log logger = LogFactory.getLog(JDBCUtil.class);
 
 	private static class ClassProperty {
 	    private Class<?> _type;

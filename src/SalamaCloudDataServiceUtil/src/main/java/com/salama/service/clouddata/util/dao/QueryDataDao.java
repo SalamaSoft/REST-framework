@@ -4,7 +4,8 @@ import MetoXML.AbstractReflectInfoCachedSerializer;
 import MetoXML.Util.ITreeNode;
 import com.salama.service.clouddata.util.SqlParamValidator;
 import com.salama.service.clouddata.util.XmlDataUtil;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -22,7 +23,7 @@ import java.util.List;
  *
  */
 public final class QueryDataDao extends AbstractReflectInfoCachedSerializer {
-	private final static Logger log = Logger.getLogger(QueryDataDao.class);
+	private static final Log logger = LogFactory.getLog(QueryDataDao.class);
 	/*
 	public static <DataType> List<DataType> findData(Connection conn, String sql, Class<DataType> dataType) 
 	throws SQLException, InstantiationException, InvocationTargetException, IllegalAccessException {

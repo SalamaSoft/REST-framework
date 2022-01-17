@@ -4,7 +4,8 @@ import MetoXML.AbstractReflectInfoCachedSerializer;
 import MetoXML.Base.XmlNode;
 import MetoXML.Util.ITreeNode;
 import com.salama.service.clouddata.util.SqlParamValidator;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import java.beans.PropertyDescriptor;
@@ -24,7 +25,7 @@ import java.util.Map;
  *
  */
 public final class UpdateDataDao extends AbstractReflectInfoCachedSerializer {
-	private static Logger logger = Logger.getLogger(UpdateDataDao.class);
+	private static final Log logger = LogFactory.getLog(UpdateDataDao.class);
 	
 	public static int updateData(Connection conn, Object data, String[] primaryKeys) throws SQLException {
 		if(data == null) {

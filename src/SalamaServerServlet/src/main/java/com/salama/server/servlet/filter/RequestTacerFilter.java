@@ -10,12 +10,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
 
 import com.salama.service.core.interfaces.RequestTracer;
 import com.salama.service.core.net.http.HttpRequestWrapper;
 import com.salama.service.core.net.http.HttpSessionWrapper;
 import com.salama.util.ClassLoaderUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -23,7 +24,7 @@ import com.salama.util.ClassLoaderUtil;
  *
  */
 public class RequestTacerFilter implements Filter {
-	protected final static Logger logger = Logger.getLogger(RequestTacerFilter.class); 
+	private static final Log logger = LogFactory.getLog(RequestTacerFilter.class);
 	
 	public final static String INIT_PARAM_NAME_TRACER = "tracer";
 	

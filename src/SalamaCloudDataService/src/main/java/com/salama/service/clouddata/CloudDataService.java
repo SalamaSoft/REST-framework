@@ -21,7 +21,8 @@ import com.salama.service.core.net.http.AbstractRequestWrapper;
 import javassist.NotFoundException;
 import javassist.bytecode.LocalVariableAttribute;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import MetoXML.Cast.BaseTypesMapping;
 
@@ -53,7 +54,7 @@ import com.salama.service.core.net.http.MultipartRequestWrapper;
  * @author XingGu Liu
  */
 public final class CloudDataService implements ICloudDataService {
-	private static Logger logger = Logger.getLogger(CloudDataService.class);
+	private static final Log logger = LogFactory.getLog(CloudDataService.class);
 	
 	static {
 		logger.info("VERSION:1.9.6");

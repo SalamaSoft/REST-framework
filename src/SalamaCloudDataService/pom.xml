@@ -12,7 +12,7 @@
 
     <groupId>com.salama</groupId>
     <artifactId>SalamaCloudDataService</artifactId>
-    <version>1.9.6</version>
+    <version>1.9.8</version>
 
     <dependencies>
         <dependency>
@@ -42,40 +42,40 @@
         </dependency>
 -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
         </dependency>
 
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaUtil</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaServiceCore</artifactId>
-            <version>1.9.6</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaUtil</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaReflect</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaCloudDataServiceUtil</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaCloudDataServiceCore</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.salama</groupId>
