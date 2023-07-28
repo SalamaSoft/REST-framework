@@ -6,7 +6,7 @@
 
     <groupId>com.salama</groupId>
     <artifactId>SalamaRest</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.8</version>
     <packaging>pom</packaging>
 
     <repositories>
