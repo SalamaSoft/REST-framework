@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>SalamaUtil</artifactId>
-    <version>1.9.8</version>
+    <version>${salama.release.version}</version>
 
     <dependencies>
         <dependency>

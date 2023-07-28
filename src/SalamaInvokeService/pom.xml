@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>SalamaInvokeService</artifactId>
-    <version>1.9.8</version>
+    <version>${salama.release.version}</version>
 
     <dependencies>
         <dependency>
@@ -30,22 +30,22 @@
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaUtil</artifactId>
-            <version>1.9.8</version>
+            <version>${salama.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaServiceCore</artifactId>
-            <version>1.9.8</version>
+            <version>${salama.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaReflect</artifactId>
-            <version>1.9.8</version>
+            <version>${salama.release.version}</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaHttpUtil</artifactId>
-            <version>1.9.8</version>
+            <version>${salama.release.version}</version>
         </dependency>
 
     </dependencies>

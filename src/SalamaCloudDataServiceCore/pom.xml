@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>SalamaCloudDataServiceCore</artifactId>
-    <version>1.9.8</version>
+    <version>${salama.release.version}</version>
 
     <dependencies>
         <dependency>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaServiceCore</artifactId>
-            <version>1.9.8</version>
+            <version>${salama.release.version}</version>
         </dependency>
     </dependencies>
     

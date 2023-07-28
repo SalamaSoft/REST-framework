@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>SalamaServiceCore</artifactId>
-    <version>1.9.8</version>
+    <version>${salama.release.version}</version>
 
     <dependencies>
         <dependency>
@@ -29,12 +29,12 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.2.2</version>
+            <version>1.5</version>
         </dependency>
         <dependency>
             <groupId>com.salama</groupId>
             <artifactId>SalamaUtil</artifactId>
-            <version>1.9.8</version>
+            <version>${salama.release.version}</version>
         </dependency>
     </dependencies>
 </project>
